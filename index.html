@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Moon Finder</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <main class="moon-finder">
+
+    <header>
+      <h1>Moon Finder</h1>
+    </header>
+
+    <section class="moon-display">
+
+      <div class="moon">
+        <img src="images/moon.png" alt="Moon">
+
+        <svg class="moon-shadow" viewBox="0 0 300 300">
+            <defs>
+              <clipPath id="moon-clip">
+                <circle cx="150" cy="150" r="150" />
+              </clipPath>
+              <mask id="phase-mask">
+                <!-- show the shadow by default -->
+                <rect
+                  x="0"
+                  y="0"
+                  width="300"
+                  height="300"
+                  fill="white"
+                />
+
+                <!-- punch a hole in the shadow -->
+                <ellipse id="phase-ellipse"
+                  cx="150"
+                  cy="150"
+                  rx="25"
+                  ry="150"
+                  fill="black"
+                />
+              </mask>
+            </defs>
+            <rect
+              x="0"
+              y="0"
+              width="150"
+              height="300"
+              fill="rgba(0, 0, 0, 0.75)"
+              clip-path="url(#moon-clip)"
+              mask="url(#phase-mask)"
+            />
+        </svg>
+
+        <div class="direction">
+          <span id="direction">SE</span>
+          <span id="azimuth">130°</span>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div id="phase">Waxing Gibbous</div>
+        <div>
+          <span id="illumination">70</span>% illuminated
+        </div>
+      </div>
+
+    </section>
+
+    <section class="position">
+
+      <div>
+        <div class="position-value">
+          <span id="altitude">2.7</span>°
+        </div>
+        <div class="position-label">above horizon</div>
+      </div>
+
+      <div>
+        <div class="position-value">
+          <span id="compass-azimuth">130</span>°
+        </div>
+        <div id="compass-direction" class="position-label">
+          southeast
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.js"></script>
+  <script src="app.js"></script>
+
+</body>
+</html>
+
+
