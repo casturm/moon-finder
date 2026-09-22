@@ -4,27 +4,30 @@
   <title>Moon Finder</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
 </head>
 
-<body>
-  <main class="moon-finder">
+  <body>
+    <main class="moon-finder">
 
-    <header>
-      <h1>Moon Finder</h1>
-    </header>
+      <header>
+        <h1>Moon Finder</h1>
+      </header>
 
-    <section class="moon-display">
+      <section class="moon-display">
 
-      <div class="moon">
-        <img src="images/moon.png" alt="Moon">
+        <div class="moon">
+          <img src="images/moon.png" alt="Moon" />
 
-        <svg class="moon-shadow" viewBox="0 0 300 300">
+          <svg class="moon-shadow" viewBox="0 0 300 300">
             <defs>
               <clipPath id="moon-clip">
-                <circle cx="150" cy="150" r="150" />
+                <circle cx="153" cy="153" r="137" />
               </clipPath>
-              <mask id="phase-mask">
-                <!-- show the shadow by default -->
+              <clipPath id="right-half">
+                <rect x="150" y="0" width="150" height="300" />
+              </clipPath>
+              <mask id="gibbous-mask">
                 <rect
                   x="0"
                   y="0"
@@ -32,69 +35,90 @@
                   height="300"
                   fill="white"
                 />
-
-                <!-- punch a hole in the shadow -->
-                <ellipse id="phase-ellipse"
+                <ellipse
+                  id="gibbous-mask-ellipse"
                   cx="150"
                   cy="150"
-                  rx="25"
+                  rx="100"
                   ry="150"
                   fill="black"
                 />
               </mask>
+              <g id="gibbous-shadow">
+                <rect id="shadow-rect"
+                  x="0"
+                  y="0"
+                  width="150"
+                  height="300"
+                  fill="rgba(0, 0, 0, 0.75)"
+                  mask="url(#gibbous-mask)"
+                />
+              </g>
+              <g id="crescent-shadow">
+                <rect id="shadow-rect"
+                  x="0"
+                  y="0"
+                  width="150"
+                  height="300"
+                  fill="rgba(0, 0, 0, 0.75)"
+                />
+                <ellipse
+                  id="crescent-shadow-ellipse"
+                  cx="150"
+                  cy="150"
+                  rx="110"
+                  ry="150"
+                  fill="rgba(0, 0, 0, 0.75)"
+                  clip-path="url(#right-half)"
+                />
+              </g>
             </defs>
-            <rect
-              x="0"
-              y="0"
-              width="150"
-              height="300"
-              fill="rgba(0, 0, 0, 0.75)"
-              clip-path="url(#moon-clip)"
-              mask="url(#phase-mask)"
-            />
-        </svg>
+            <g id="phase-shadow-group" clip-path="url(#moon-clip)">
+              <use id="phase-shadow" href="#gibbous-shadow" />
+            </g>
+          </svg>
 
-        <div class="direction">
-          <span id="direction">SE</span>
-          <span id="azimuth">130°</span>
+          <div class="direction">
+            <span id="direction">SE</span>
+            <span id="azimuth">130°</span>
+          </div>
         </div>
-      </div>
 
-      <div class="phase">
-        <div id="phase">Waxing Gibbous</div>
+        <div class="phase">
+          <div id="phase">Waxing Gibbous</div>
+          <div>
+            <span id="illumination">70</span>% illuminated
+          </div>
+        </div>
+
+      </section>
+
+      <section class="position">
+
         <div>
-          <span id="illumination">70</span>% illuminated
+          <div class="position-value">
+            <span id="altitude">2.7</span>°
+          </div>
+          <div id="altitude-descriptor" class="position-label">above horizon</div>
         </div>
-      </div>
 
-    </section>
-
-    <section class="position">
-
-      <div>
-        <div class="position-value">
-          <span id="altitude">2.7</span>°
+        <div>
+          <div class="position-value">
+            <span id="compass-azimuth">130</span>°
+          </div>
+          <div id="compass-direction" class="position-label">
+            southeast
+          </div>
         </div>
-        <div class="position-label">above horizon</div>
-      </div>
 
-      <div>
-        <div class="position-value">
-          <span id="compass-azimuth">130</span>°
-        </div>
-        <div id="compass-direction" class="position-label">
-          southeast
-        </div>
-      </div>
+      </section>
 
-    </section>
+    </main>
 
-  </main>
+    <script src="https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.js"></script>
+    <script src="app.js"></script>
 
-  <script src="https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.js"></script>
-  <script src="app.js"></script>
-
-</body>
+  </body>
 </html>
 
 

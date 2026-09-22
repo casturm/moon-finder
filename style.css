@@ -66,6 +66,10 @@ header h1 {
   height: 100%;
 }
 
+#phase-shadow-group.waning {
+  transform: translateX(300px) scaleX(-1);
+}
+
 .direction {
   position: absolute;
   inset: 0;
