@@ -1,3 +1,7 @@
+const DEBUG = true;
+
+import { magvar } from "https://esm.sh/magvar@2.2.0";
+
 const names = ['New Moon', 'Waxing Crescent', 'First Quarter', 'Waxing Gibbous',
     'Full Moon', 'Waning Gibbous', 'Last Quarter', 'Waning Crescent'];
  
@@ -22,15 +26,14 @@ function isGibbous(fraction) {
   return fraction < 0.5 
 }
 
-const date = new Date();
-// Hard coded Portland, OR coordinates
-// const latitude = 45.5152;
-// const longitude = -122.6784;
- 
 navigator.geolocation.getCurrentPosition(
   (position) => {
+    // Hard coded Portland, OR coordinates
+    // const latitude = 45.5152;
+    // const longitude = -122.6784;
     const latitude = position.coords.latitude;
     const longitude = position.coords.longitude;
+    const date = new Date();
 
     updateMoon(date, latitude, longitude);
   },
@@ -40,8 +43,17 @@ navigator.geolocation.getCurrentPosition(
 );
  
 function updateMoon(date, latitude, longitude) {
-    const position = SunCalc.getMoonPosition(date, latitude, longitude);
+    console.log(date);
+    console.log(date.toISOString());
+    console.log(latitude, longitude);
 
+    const position = SunCalc.getMoonPosition(date, latitude, longitude);
+    console.log(
+        "raw azimuth:",
+        radiansToDegrees(position.azimuth),
+        "compass:",
+        toCompassAzimuth(radiansToDegrees(position.azimuth))
+    );
     const {phase} = SunCalc.getMoonIllumination(date);
     const waxing = isWaxing(phase)
     const name = names[Math.round(phase * 8) % 8];
@@ -67,12 +79,12 @@ function updateMoon(date, latitude, longitude) {
     }
 
     document.getElementById('direction').textContent = whereToLook.direction;
+    document.getElementById('compass-direction').textContent = whereToLook.direction;
     document.getElementById('azimuth').textContent = whereToLook.azimuth;
     document.getElementById('illumination').textContent = whereToLook.illumination;
     document.getElementById('phase').textContent = whereToLook.phase;
     document.getElementById('altitude').textContent = whereToLook.altitude;
     document.getElementById('compass-azimuth').textContent = whereToLook.compassAzimuth;
-    document.getElementById('compass-direction').textContent = whereToLook.compassDirection;
 
     if (altitude < 0) {
         document.getElementById('altitude-descriptor').textContent = 'below horizon'
@@ -94,4 +106,66 @@ function updateMoon(date, latitude, longitude) {
         document.getElementById('phase-shadow').setAttribute('href', '#gibbous-shadow');
         document.getElementById('gibbous-mask-ellipse').setAttribute('rx', gibbousRx);
     }
+
+    const finderArrow = document.getElementById("finder-arrow");
+    const finderDistance = document.getElementById("finder-distance");
+    const finderInstruction = document.getElementById("finder-instruction");
+
+    function updateFinder(difference) {
+        const degrees = Math.abs(difference);
+
+        if (degrees <= 5) {
+            finderArrow.textContent = "✓";
+            finderDistance.textContent = "";
+            finderInstruction.textContent = "ON IT!";
+        } else if (difference < 0) {
+            finderArrow.textContent = "←";
+            finderDistance.textContent = `${degrees}°`;
+            finderInstruction.textContent = "TURN LEFT";
+        } else {
+            finderArrow.textContent = "→";
+            finderDistance.textContent = `${degrees}°`;
+            finderInstruction.textContent = "TURN RIGHT";
+        }
+    }
+
+    async function enableCompass() {
+        if (typeof DeviceOrientationEvent.requestPermission === "function") {
+            const permission = await DeviceOrientationEvent.requestPermission();
+
+            if (permission !== "granted") {
+                console.log("Orientation permission denied");
+                return;
+            }
+        }
+        button.hidden = true;
+    }
+
+    const button = document.getElementById('compass-button');
+    button.addEventListener('click', enableCompass);
+
+    function handleOrientation(event) {
+        const declination = magvar(latitude, longitude);
+
+        const magneticHeading = event.webkitCompassHeading;
+
+        const trueHeading =
+            (magneticHeading + declination + 360) % 360;
+
+        const difference =
+            Math.round(((whereToLook.compassAzimuth - trueHeading + 540) % 360) - 180);
+
+        if (DEBUG) {
+            document.getElementById("debug-content").textContent = `
+target: ${Math.round(whereToLook.compassAzimuth)}
+webkit: ${Math.round(magneticHeading)}
+declination: ${declination.toFixed(1)}
+true: ${Math.round(trueHeading)}
+difference: ${difference}
+`;
+        }
+
+        updateFinder(difference);
+    }
+    window.addEventListener("deviceorientation", handleOrientation);
 }

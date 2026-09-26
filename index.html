@@ -113,10 +113,25 @@
 
       </section>
 
+      <section class="compass">
+        <button id="compass-button">ENABLE COMPASS</button>
+
+        <div id="orientation" class="finder">
+          <span id="finder-arrow" class="finder-arrow"></span>
+          <div>
+            <div id="finder-distance" class="finder-distance"></div>
+            <div id="finder-instruction" class="finder-instruction">
+              Compass not enabled
+            </div>
+          </div>
+        </div>
+        <div id="debug-content"/>
+      </section>
+
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.js"></script>
-    <script src="app.js"></script>
+    <script type="module" src="app.js"></script>
 
   </body>
 </html>
