@@ -1,169 +1,253 @@
 * {
   box-sizing: border-box;
 }
-
+[hidden] {
+  display: none !important;
+}
 body {
   margin: 0;
   min-height: 100vh;
-
   font-family: Arial, sans-serif;
-  color: white;
-
-  background-image: url("images/night-sky-portrait.png");
-  background-size: cover;
-  background-position: center bottom;
-  background-attachment: fixed;
+  color: #fff;
+  isolation: isolate;
+  background: #071426;
 }
-
+/* A viewport layer avoids iOS stretching fixed body backgrounds to page height. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: url("images/night-sky-portrait.png") right bottom / cover no-repeat;
+}
 @media (orientation: landscape) {
-  body {
+  body::before {
     background-image: url("images/night-sky-landscape.png");
-    background-position: center center;
+    background-position: center;
   }
 }
-
 .moon-finder {
   min-height: 100vh;
-  padding: 32px 20px;
-
+  padding: 32px 20px 48px;
   display: flex;
   flex-direction: column;
   align-items: center;
-
   text-align: center;
 }
-
 header h1 {
-  margin: 0 0 50px;
+  margin: 0;
   font-size: 2.5rem;
   font-weight: 400;
 }
-
+header p {
+  color: #cbd7e9;
+  margin: 12px 0 28px;
+}
 .moon-display {
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
 }
-
 .moon {
-  position: relative;
-
-  width: min(70vw, 400px);
+  width: min(70vw, 340px);
   aspect-ratio: 1;
 }
-
-.moon img {
+.natural-moon {
+  height: auto;
+}
+.data-credit {
+  margin: 28px 0 0;
+}
+.data-credit a {
+  color: #c4ddff;
+}
+.phase {
+  margin-top: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  line-height: 1.8;
+}
+#phase {
+  font-size: 1.3rem;
+}
+.position,
+.panel {
+  width: min(100%, 500px);
+  padding: 20px;
+  border: 1px solid #ffffff40;
+  border-radius: 16px;
+  background: #050f23db;
+  backdrop-filter: blur(8px);
+}
+.position {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.position > div + div {
+  border-left: 1px solid #ffffff40;
+}
+.position-value {
+  font-size: 2rem;
+}
+.position-label {
+  margin-top: 6px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #d1dbea;
+}
+.status {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  max-width: 500px;
+}
+.error {
+  color: #ffdbb4;
+  margin: 8px 0;
+}
+.status:empty {
+  display: none;
+}
+.panel {
+  margin-top: 20px;
+}
+h2 {
+  margin: 0 0 16px;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+label {
+  display: block;
+  text-align: left;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+#timezone {
+  display: block;
+  color: #cbd7e9;
+  margin-top: 4px;
+}
+input,
+button {
+  font: inherit;
+  color: inherit;
+  border: 1px solid #ffffff60;
+  border-radius: 8px;
+  min-height: 44px;
+  background: #142b48;
+  padding: 10px 14px;
+}
+input {
+  display: block;
   width: 100%;
-  height: 100%;
-  object-fit: contain;
+  min-width: 0;
+  max-width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  color-scheme: dark;
 }
-
-.moon-shadow {
-  position: absolute;
-  inset: 0;
-
-  width: 100%;
-  height: 100%;
+/* Safari's native date editor otherwise imposes an oversized intrinsic width. */
+input::-webkit-date-and-time-value {
+  min-width: 0;
+  text-align: left;
 }
-
-#phase-shadow-group.waning {
-  transform: translateX(300px) scaleX(-1);
+button {
+  cursor: pointer;
 }
-
-.direction {
-  position: absolute;
-  inset: 0;
-
+button:hover {
+  background: #22476e;
+}
+:focus-visible {
+  outline: 3px solid #b4d9ff;
+  outline-offset: 3px;
+}
+.time-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+.time-buttons button {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.hint {
+  color: #cbd7e9;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+#selected-time {
+  display: block;
+  margin-top: 7px;
+  font-size: 0.9rem;
+  color: #e0e8f4;
+}
+.finder {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-
-  color: #07162c;
+  gap: 8px;
+  min-height: 64px;
+  text-align: center;
 }
-
-#direction {
-  font-size: 4rem;
-  font-weight: bold;
+.compass-dial {
+  width: min(100%, 280px);
+  height: auto;
+  overflow: visible;
 }
-
-#azimuth {
-  font-size: 1.5rem;
+.compass-cardinals,
+.compass-facing,
+.compass-facing-label {
+  fill: #e0e8f4;
+  text-anchor: middle;
 }
-
-.phase {
-  margin-top: 24px;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  line-height: 1.8;
+.compass-cardinals { font-size: 14px; }
+.compass-facing { font-size: 28px; font-weight: 600; }
+.compass-facing-label { font-size: 10px; letter-spacing: 1px; }
+.moon-ring,
+.phone-ring {
+  fill: none;
+  stroke-width: 3;
 }
-
-#phase {
-  font-size: 1.4rem;
+.moon-ring { stroke: #c4ddff; }
+.phone-ring { stroke: #ff8d91; }
+.moon-marker { fill: #c4ddff; }
+.moon-marker-cutout { fill: #050f23; }
+.phone-marker { fill: #ff8d91; }
+.aligned .moon-ring,
+.aligned .phone-ring { stroke: #77e6a0; }
+.aligned .moon-marker,
+.aligned .phone-marker { fill: #77e6a0; }
+.aligned .moon-marker-cutout { fill: #050f23; }
+.aligned .finder-instruction { color: #77e6a0; }
+.compass-legend {
+  margin: 0;
 }
-
-.position {
-  width: min(90vw, 500px);
-
-  margin-top: 40px;
-  padding: 20px 30px;
-
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 16px;
-
-  background: rgba(5, 15, 35, 0.55);
-  backdrop-filter: blur(8px);
-}
-
-.position > div + div {
-  border-left: 1px solid rgba(255, 255, 255, 0.25);
-}
-
-.position-value {
-  font-size: 2rem;
-}
-
-.position-label {
-  margin-top: 6px;
-
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-
-  opacity: 0.75;
-}
-
-.finder {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0.75rem;
-
-  margin-top: 1rem;
-  min-height: 4rem;
-
-  color: white;
-  text-align: left;
-}
-
-.finder-arrow {
-  font-size: 3rem;
-  line-height: 1;
-}
-
-.finder-distance {
-  font-size: 2rem;
-  font-weight: 600;
-  line-height: 1;
-}
-
 .finder-instruction {
-  margin-top: 0.25rem;
-
-  font-size: 0.8rem;
-  letter-spacing: 0.15em;
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+pre {
+  text-align: left;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 0.75rem;
+}
+@media (max-width: 360px) {
+  .moon-finder {
+    padding: 24px 12px;
+  }
+  .panel {
+    padding: 16px 12px;
+  }
+  button {
+    padding: 10px 8px;
+  }
 }

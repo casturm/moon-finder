@@ -1,171 +1,422 @@
-const DEBUG = true;
-
-import { magvar } from "https://esm.sh/magvar@2.2.0";
-
-const names = ['New Moon', 'Waxing Crescent', 'First Quarter', 'Waxing Gibbous',
-    'Full Moon', 'Waning Gibbous', 'Last Quarter', 'Waning Crescent'];
- 
-function radiansToDegrees(radians) {
-    return radians * 180 / Math.PI;
-}
-function toCompassAzimuth(sunCalcAzimuth) {
-    return sunCalcAzimuth + 180;
-  
-}
-function toCompassDirection(degrees) {
-  const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
-
-  const index = Math.round(degrees / 45) % 8;
-
-  return directions[index];
-}
-function isWaxing(phase) {
-  return phase < 0.5;
-}
-function isGibbous(fraction) {
-  return fraction < 0.5 
-}
-
-navigator.geolocation.getCurrentPosition(
-  (position) => {
-    // Hard coded Portland, OR coordinates
-    // const latitude = 45.5152;
-    // const longitude = -122.6784;
-    const latitude = position.coords.latitude;
-    const longitude = position.coords.longitude;
-    const date = new Date();
-
-    updateMoon(date, latitude, longitude);
+import {
+  calculateMoon,
+  normalizeDegrees,
+  shortestTurn,
+  stepCalendarDays,
+  validDate,
+} from "./moon-model.js";
+import { MoonRenderer } from "./moon-renderer.js";
+import { surfaceRotation } from "./moon-surface-orientation.js";
+const $ = (id) => document.getElementById(id);
+const debug = new URLSearchParams(location.search).get("debug") === "1";
+const state = {
+  date: new Date(),
+  mode: "live",
+  location: null,
+  moon: null,
+  visible: false,
+  compass: "hidden",
+  heading: null,
+  source: null,
+  declination: null,
+  renderer: "loading",
+};
+const landscapeCompass = window.matchMedia("(orientation: landscape)");
+let orientationEvent = "deviceorientation";
+let playback = null,
+  headingTimeout = null,
+  listening = false,
+  permissionAttempt = 0,
+  magvarPromise;
+$("debug-panel").hidden = !debug;
+$("timezone").textContent =
+  `(${Intl.DateTimeFormat().resolvedOptions().timeZone})`;
+const moonRenderer = new MoonRenderer($("moon-surface"), {
+  onStatus(status) {
+    state.renderer = status;
+    updateMoonVisibility();
+    diagnostics();
   },
-  (error) => {
-    console.error(error);
+});
+function updateMoonVisibility() {
+  const natural = state.renderer === "ready" && state.moon !== null;
+  $("moon-surface").hidden = !natural;
+  const message =
+    state.renderer === "lost"
+      ? "Restoring the Moon view…"
+      : ["unavailable", "error"].includes(state.renderer)
+        ? "Moon view unavailable. Reload to retry. Phase information and time controls are still available."
+        : state.renderer === "loading"
+          ? "Loading the Moon view…"
+          : "";
+  if ($("moon-render-status").textContent !== message) {
+    $("moon-render-status").textContent = message;
   }
-);
- 
-function updateMoon(date, latitude, longitude) {
-    console.log(date);
-    console.log(date.toISOString());
-    console.log(latitude, longitude);
-
-    const position = SunCalc.getMoonPosition(date, latitude, longitude);
-    console.log(
-        "raw azimuth:",
-        radiansToDegrees(position.azimuth),
-        "compass:",
-        toCompassAzimuth(radiansToDegrees(position.azimuth))
-    );
-    const {phase} = SunCalc.getMoonIllumination(date);
-    const waxing = isWaxing(phase)
-    const name = names[Math.round(phase * 8) % 8];
-
-    const illumination = SunCalc.getMoonIllumination(date);
-
-    const moonRadius = 150;
-    const fraction = illumination.fraction;
-    const gibbous = isGibbous(fraction);
-    const gibbousRx = Math.abs((fraction - 0.5) * 2 * moonRadius);
-    const crescentRx = moonRadius * (1 - 2 * fraction)
-
-    const compassToAzimuth = toCompassAzimuth(radiansToDegrees(position.azimuth));
-    const compassDirection = toCompassDirection(compassToAzimuth);
-    const altitude = radiansToDegrees(position.altitude);
-    const whereToLook = {
-        direction: compassDirection,
-        azimuth: Math.round(compassToAzimuth),
-        phase: name,
-        illumination: Math.round(illumination.fraction * 100),
-        altitude: Math.round(altitude),
-        compassAzimuth: Math.round(compassToAzimuth)
-    }
-
-    document.getElementById('direction').textContent = whereToLook.direction;
-    document.getElementById('compass-direction').textContent = whereToLook.direction;
-    document.getElementById('azimuth').textContent = whereToLook.azimuth;
-    document.getElementById('illumination').textContent = whereToLook.illumination;
-    document.getElementById('phase').textContent = whereToLook.phase;
-    document.getElementById('altitude').textContent = whereToLook.altitude;
-    document.getElementById('compass-azimuth').textContent = whereToLook.compassAzimuth;
-
-    if (altitude < 0) {
-        document.getElementById('altitude-descriptor').textContent = 'below horizon'
-    } else {
-        document.getElementById('altitude-descriptor').textContent = 'above horizon'
-    }
-
-    const moonShadow = document.getElementById('phase-shadow-group');
-    if (waxing) {
-        moonShadow.classList.remove('waning');
-    } else {
-        moonShadow.classList.add('waning');
-    }
-
-    if (gibbous) {
-        document.getElementById('phase-shadow').setAttribute('href', '#crescent-shadow');
-        document.getElementById('crescent-shadow-ellipse').setAttribute('rx', crescentRx);
-    } else {
-        document.getElementById('phase-shadow').setAttribute('href', '#gibbous-shadow');
-        document.getElementById('gibbous-mask-ellipse').setAttribute('rx', gibbousRx);
-    }
-
-    const finderArrow = document.getElementById("finder-arrow");
-    const finderDistance = document.getElementById("finder-distance");
-    const finderInstruction = document.getElementById("finder-instruction");
-
-    function updateFinder(difference) {
-        const degrees = Math.abs(difference);
-
-        if (degrees <= 5) {
-            finderArrow.textContent = "✓";
-            finderDistance.textContent = "";
-            finderInstruction.textContent = "ON IT!";
-        } else if (difference < 0) {
-            finderArrow.textContent = "←";
-            finderDistance.textContent = `${degrees}°`;
-            finderInstruction.textContent = "TURN LEFT";
-        } else {
-            finderArrow.textContent = "→";
-            finderDistance.textContent = `${degrees}°`;
-            finderInstruction.textContent = "TURN RIGHT";
-        }
-    }
-
-    async function enableCompass() {
-        if (typeof DeviceOrientationEvent.requestPermission === "function") {
-            const permission = await DeviceOrientationEvent.requestPermission();
-
-            if (permission !== "granted") {
-                console.log("Orientation permission denied");
-                return;
-            }
-        }
-        button.hidden = true;
-    }
-
-    const button = document.getElementById('compass-button');
-    button.addEventListener('click', enableCompass);
-
-    function handleOrientation(event) {
-        const declination = magvar(latitude, longitude);
-
-        const magneticHeading = event.webkitCompassHeading;
-
-        const trueHeading =
-            (magneticHeading + declination + 360) % 360;
-
-        const difference =
-            Math.round(((whereToLook.compassAzimuth - trueHeading + 540) % 360) - 180);
-
-        if (DEBUG) {
-            document.getElementById("debug-content").textContent = `
-target: ${Math.round(whereToLook.compassAzimuth)}
-webkit: ${Math.round(magneticHeading)}
-declination: ${declination.toFixed(1)}
-true: ${Math.round(trueHeading)}
-difference: ${difference}
-`;
-        }
-
-        updateFinder(difference);
-    }
-    window.addEventListener("deviceorientation", handleOrientation);
 }
+const localInput = (date) =>
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}T${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+function diagnostics() {
+  if (debug)
+    $("debug-content").textContent = JSON.stringify(
+      { ...state, date: state.date.toISOString() },
+      null,
+      2,
+    );
+}
+function render() {
+  if (!window.SunCalc) {
+    $("sky-status").textContent =
+      "Moon calculations could not load. Check your connection and reload.";
+    return;
+  }
+  state.moon = calculateMoon(window.SunCalc, state.date, state.location);
+  const moon = state.moon;
+  $("phase").textContent = moon.name;
+  $("illumination").textContent = Math.round(moon.fraction * 100);
+  $("moon-surface").setAttribute(
+    "aria-label",
+    `${moon.name}, ${Math.round(moon.fraction * 100)}% illuminated. ${state.location ? "Oriented relative to your local horizon." : "Location needed for local sky orientation."}`,
+  );
+  moonRenderer.render({
+    fraction: moon.fraction,
+    rotation: moon.rotation ?? -90 - (moon.angle * 180) / Math.PI,
+    surfaceRotation: surfaceRotation(state.date, moon.parallacticAngle ?? 0),
+  });
+  updateMoonVisibility();
+  $("altitude").textContent = state.location
+    ? `${Math.abs(moon.altitude).toFixed(1)}°`
+    : "—";
+  $("altitude-descriptor").textContent = state.location
+    ? moon.altitude < 0
+      ? "below horizon"
+      : "above horizon"
+    : "Location needed";
+  $("azimuth").textContent = state.location
+    ? `${Math.round(moon.azimuth) % 360}°`
+    : "—";
+  $("direction").textContent = state.location
+    ? moon.direction
+    : "Location needed";
+  $("sky-status").textContent = state.location
+    ? moon.altitude < 0
+      ? "Below your horizon at this time."
+      : "Moon orientation matches your local sky."
+    : "Location needed for local sky orientation and direction.";
+  $("selected-date").value = localInput(state.date);
+  $("selected-time").textContent = state.date.toLocaleString([], {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
+  $("time-mode").textContent =
+    state.mode === "live"
+      ? "Live · Now"
+      : state.mode === "playing"
+        ? "Exploring · Playing"
+        : "Exploring · Paused";
+  $("compass-context").textContent =
+    state.mode === "live"
+      ? "Direction for now, using your current device heading."
+      : `Direction for ${state.date.toLocaleString()}, using your current device heading.`;
+  renderFinder();
+  diagnostics();
+}
+function pause() {
+  clearInterval(playback);
+  playback = null;
+  if (state.mode === "playing") state.mode = "selected";
+  $("play").textContent = "Play";
+  $("play").setAttribute("aria-pressed", "false");
+}
+function selectDate(date) {
+  pause();
+  if (!validDate(date)) {
+    $("time-error").textContent = "Choose a valid date between 1900 and 2100.";
+    render();
+    return;
+  }
+  $("time-error").textContent = "";
+  state.date = date;
+  state.mode = "selected";
+  render();
+}
+$("selected-date").addEventListener("change", (event) =>
+  selectDate(new Date(event.target.value)),
+);
+$("previous-day").addEventListener("click", () =>
+  selectDate(stepCalendarDays(state.date, -1)),
+);
+$("next-day").addEventListener("click", () =>
+  selectDate(stepCalendarDays(state.date, 1)),
+);
+$("now").addEventListener("click", () => {
+  pause();
+  state.mode = "live";
+  state.date = new Date();
+  $("time-error").textContent = "";
+  render();
+});
+$("play").addEventListener("click", () => {
+  if (playback) {
+    pause();
+    render();
+    return;
+  }
+  state.mode = "playing";
+  $("play").textContent = "Pause";
+  $("play").setAttribute("aria-pressed", "true");
+  playback = setInterval(() => {
+    const date = stepCalendarDays(state.date, 1);
+    if (!validDate(date)) {
+      pause();
+      $("time-error").textContent =
+        "Playback stopped at the supported date limit (1900–2100).";
+      render();
+      return;
+    }
+    state.date = date;
+    render();
+  }, 1000);
+  render();
+});
+setInterval(() => {
+  if (state.mode === "live" && !document.hidden) {
+    state.date = new Date();
+    render();
+  }
+}, 30000);
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) pause();
+  else if (state.mode === "live") state.date = new Date();
+  render();
+});
+function compassStatus(status, message, retry = false) {
+  state.compass = status;
+  if ($("compass-status").textContent !== message) {
+    $("compass-status").textContent = message;
+  }
+  $("compass-retry").hidden = !retry;
+  renderFinder();
+  diagnostics();
+}
+function renderFinder() {
+  const landscape = landscapeCompass.matches;
+  $("compass-portrait-message").hidden = !state.visible || !landscape;
+  $("compass-portrait-content").hidden = landscape;
+  const ready =
+    !landscape &&
+    state.visible &&
+    state.heading !== null &&
+    state.moon?.azimuth !== undefined;
+  $("orientation").hidden = !ready;
+  if (!ready) return;
+  const difference = shortestTurn(state.moon.azimuth, state.heading),
+    aligned = Math.abs(difference) <= 5;
+  const facing = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"][
+    Math.round(state.heading / 45) % 8
+  ];
+  $("orientation").classList.toggle("aligned", aligned);
+  $("moon-bearing-marker").setAttribute(
+    "transform",
+    `rotate(${difference} 140 140)`,
+  );
+  $("phone-heading-marker").setAttribute("transform", "rotate(0 140 140)");
+  // Each cardinal keeps its text upright while its position follows heading.
+  document
+    .querySelectorAll(".compass-cardinals [data-bearing]")
+    .forEach((label) => {
+      const relative =
+        ((Number(label.dataset.bearing) - state.heading) * Math.PI) / 180;
+      label.setAttribute("x", String(140 + 120 * Math.sin(relative)));
+      label.setAttribute("y", String(140 - 120 * Math.cos(relative) + 5));
+    });
+  $("phone-ring").setAttribute("r", aligned ? "94" : "76");
+  $("phone-pointer").setAttribute(
+    "transform",
+    aligned ? "translate(0 -18)" : "translate(0 0)",
+  );
+  $("phone-direction").textContent = facing;
+  const instruction = aligned
+    ? state.moon.altitude < 0
+      ? "Bearing aligned · Moon below horizon"
+      : "Aligned with Moon"
+    : "Point the top of your phone toward the Moon";
+  if ($("finder-instruction").textContent !== instruction) {
+    $("finder-instruction").textContent = instruction;
+  }
+  $("compass-description").textContent =
+    `Moon bearing ${state.moon.direction}. Phone facing ${facing}. ${instruction}.`;
+}
+function stopSensors() {
+  clearTimeout(headingTimeout);
+  if (listening) {
+    window.removeEventListener(orientationEvent, handleOrientation);
+    listening = false;
+  }
+  state.heading = null;
+  state.source = null;
+}
+function handleOrientation(event) {
+  if (!state.visible || landscapeCompass.matches) return;
+  let heading, source;
+  if (
+    Number.isFinite(event.webkitCompassHeading) &&
+    event.webkitCompassHeading >= 0
+  ) {
+    if (state.declination === null) return;
+    heading = event.webkitCompassHeading + state.declination;
+    source = "Magnetic compass + declination";
+  } else if (event.absolute === true && Number.isFinite(event.alpha)) {
+    heading = 360 - event.alpha;
+    source = "Absolute orientation (true north)";
+  } else return;
+  state.heading = normalizeDegrees(heading);
+  state.source = source;
+  clearTimeout(headingTimeout);
+  compassStatus(
+    "active",
+    state.location
+      ? "Compass active. Hold your phone flat in portrait, with its top edge pointing ahead."
+      : "Compass active. Location needed for Moon guidance.",
+  );
+}
+function updateCompassLayout() {
+  clearTimeout(headingTimeout);
+  state.heading = null;
+  state.source = null;
+  if (!state.visible || !listening) {
+    renderFinder();
+    diagnostics();
+    return;
+  }
+  if (landscapeCompass.matches) {
+    compassStatus("paused", "Compass paused in landscape.");
+    return;
+  }
+  compassStatus("waiting", "Waiting for a compass heading…");
+  headingTimeout = setTimeout(() => {
+    stopSensors();
+    compassStatus(
+      "unavailable",
+      "No usable compass heading arrived. Check sensor permissions and try again.",
+      true,
+    );
+  }, 5000);
+}
+landscapeCompass.addEventListener("change", updateCompassLayout);
+async function showCompass() {
+  stopSensors();
+  const attempt = ++permissionAttempt;
+  state.visible = true;
+  $("compass-content").hidden = false;
+  $("compass-button").textContent = "Hide compass";
+  $("compass-button").setAttribute("aria-expanded", "true");
+  if (typeof window.DeviceOrientationEvent === "undefined") {
+    compassStatus(
+      "unavailable",
+      "Compass sensors are unavailable on this device. Use the Moon bearing above.",
+      true,
+    );
+    return;
+  }
+  compassStatus("permission", "Requesting compass access…");
+  try {
+    if (typeof window.DeviceOrientationEvent.requestPermission === "function") {
+      const permission =
+        await window.DeviceOrientationEvent.requestPermission();
+      if (attempt !== permissionAttempt || !state.visible) return;
+      if (permission !== "granted") {
+        compassStatus(
+          "denied",
+          "Compass permission was denied. Allow motion and orientation access in your browser to retry.",
+          true,
+        );
+        return;
+      }
+    }
+    if (attempt !== permissionAttempt || !state.visible) return;
+    orientationEvent =
+      "ondeviceorientationabsolute" in window
+        ? "deviceorientationabsolute"
+        : "deviceorientation";
+    window.addEventListener(orientationEvent, handleOrientation);
+    listening = true;
+    updateCompassLayout();
+  } catch {
+    if (attempt === permissionAttempt && state.visible)
+      compassStatus(
+        "error",
+        "Compass access failed. Check browser permissions and try again.",
+        true,
+      );
+  }
+}
+$("compass-button").addEventListener("click", () => {
+  if (!state.visible) {
+    showCompass();
+    return;
+  }
+  ++permissionAttempt;
+  state.visible = false;
+  stopSensors();
+  $("compass-content").hidden = true;
+  $("compass-button").textContent = "Show compass";
+  $("compass-button").setAttribute("aria-expanded", "false");
+  compassStatus("hidden", "");
+});
+$("compass-retry").addEventListener("click", showCompass);
+function requestLocation() {
+  $("location-retry").hidden = true;
+  $("location-status").textContent = "Requesting your location…";
+  if (!navigator.geolocation) {
+    locationFailure();
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    async (position) => {
+      state.location = {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+      };
+      $("location-status").textContent = "Using your current location.";
+      render();
+      try {
+        magvarPromise ??= import("https://esm.sh/magvar@2.2.0");
+        const { magvar } = await magvarPromise;
+        const correction = magvar(
+          state.location.latitude,
+          state.location.longitude,
+        );
+        state.declination = Number.isFinite(correction) ? correction : null;
+        diagnostics();
+      } catch {
+        state.declination = null;
+      }
+    },
+    locationFailure,
+    { timeout: 10000, maximumAge: 300000 },
+  );
+}
+function locationFailure() {
+  $("location-status").textContent =
+    "Location unavailable. Allow location access to see the Moon in your local sky.";
+  $("location-retry").hidden = false;
+  render();
+}
+$("location-retry").addEventListener("click", requestLocation);
+window.addEventListener("pagehide", () => {
+  pause();
+  ++permissionAttempt;
+  state.visible = false;
+  stopSensors();
+  $("compass-content").hidden = true;
+  $("compass-button").textContent = "Show compass";
+  $("compass-button").setAttribute("aria-expanded", "false");
+  compassStatus("hidden", "");
+});
+window.addEventListener("pageshow", () => {
+  if (state.mode === "live") state.date = new Date();
+  render();
+});
+window.addEventListener("resize", () => moonRenderer.render());
+render();
+requestLocation();

@@ -1,0 +1,93 @@
+.renderer-preview a {
+  color: #c4ddff;
+}
+.renderer-preview header a {
+  display: inline-block;
+  margin-bottom: 24px;
+}
+.renderer-preview h1 {
+  font-size: clamp(1.8rem, 6vw, 2.5rem);
+}
+.preview-controls {
+  width: min(100%, 600px);
+}
+.phase-presets,
+.preview-time-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.phase-presets button,
+.preview-time-actions button {
+  min-width: 0;
+  padding: 10px 6px;
+}
+.phase-presets button[aria-pressed="true"] {
+  border-color: #c4ddff;
+  background: #22476e;
+}
+.preview-time-actions {
+  margin-top: 12px;
+}
+.preview-controls select {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  font: inherit;
+  color: inherit;
+  color-scheme: dark;
+  background: #142b48;
+  border: 1px solid #ffffff60;
+  border-radius: 8px;
+  padding: 10px;
+  min-height: 44px;
+  margin-bottom: 12px;
+}
+#preview-timezone {
+  display: block;
+  color: #cbd7e9;
+  margin-top: 4px;
+}
+.preview-phase {
+  line-height: 1.6;
+  margin: 28px 0 0;
+}
+.comparison {
+  width: min(100%, 500px);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+}
+.render-card {
+  margin: 20px 0 0;
+  width: 100%;
+  min-width: 0;
+}
+.render-card figcaption {
+  margin: 0 0 20px;
+  font-size: 1.1rem;
+}
+.comparison-moon {
+  display: block;
+  width: min(100%, 340px);
+  aspect-ratio: 1;
+  height: auto;
+  margin: 0 auto;
+}
+.preview-note {
+  max-width: 600px;
+  margin: 28px 0 0;
+}
+.renderer-preview summary {
+  text-align: left;
+  cursor: pointer;
+}
+@media (max-width: 600px) {
+  .comparison {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .phase-presets {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Moon rendering preview · Moon Finder</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="renderer-preview.css" />
+  </head>
+  <body>
+    <main class="moon-finder renderer-preview">
+      <header>
+        <a href="./">← Moon Finder</a>
+        <h1>A more natural Moon</h1>
+        <p>Explore sunlight and shadows across the lunar surface.</p>
+      </header>
+      <section class="panel preview-controls" aria-label="Lunar view controls">
+        <div class="phase-presets" aria-label="Example phases">
+          <button data-date="2026-10-14T19:00:00Z">Crescent</button>
+          <button data-date="2026-10-18T16:12:00Z">Quarter</button>
+          <button data-date="2026-10-22T19:00:00Z">Gibbous</button>
+          <button data-date="2026-10-26T04:12:00Z">Full</button>
+        </div>
+        <label for="preview-date"
+          >Date and time <span id="preview-timezone"></span
+        ></label>
+        <input
+          id="preview-date"
+          type="datetime-local"
+          min="1900-01-01T00:00"
+          max="2100-12-31T23:59"
+        />
+        <div class="preview-time-actions">
+          <button id="preview-previous">← Day</button>
+          <button id="preview-play" aria-pressed="false">Play</button>
+          <button id="preview-next">Day →</button>
+          <button id="preview-now">Now</button>
+        </div>
+        <label for="preview-location">Reference location</label>
+        <select id="preview-location">
+          <option value="portland">Portland, Oregon</option>
+          <option value="sydney">Sydney, Australia</option>
+          <option value="quito">Quito, Ecuador</option>
+        </select>
+        <button id="preview-use-location">Use my location</button>
+        <p id="preview-location-status" class="hint" role="status">
+          Using Portland as a reference location.
+        </p>
+        <p id="preview-error" class="error" role="status"></p>
+      </section>
+      <p id="preview-phase" class="preview-phase"></p>
+      <section class="comparison" aria-label="Natural Moon rendering">
+        <figure class="panel render-card">
+          <figcaption>Surface lighting preview</figcaption>
+          <canvas
+            id="surface-moon"
+            class="comparison-moon"
+            width="512"
+            height="512"
+            role="img"
+            aria-label="Moon surface lit by the Sun"
+          ></canvas>
+          <p id="renderer-status" class="hint" role="status">
+            Loading lunar surface…
+          </p>
+        </figure>
+      </section>
+      <p class="hint preview-note">
+        This view uses the same natural Moon renderer as the app.
+      </p>
+      <details class="panel preview-controls">
+        <summary>About this preview</summary>
+        <p class="hint">
+          Sunlight varies across lunar terrain. The dark side is faintly
+          visible; lunar north and the sunlight direction follow the local sky.
+          This preview uses an approximate lunar axis and a fixed near-side
+          view, so precise libration and eclipses are not included.
+        </p>
+        <p class="hint">
+          Surface maps: NASA’s Scientific Visualization Studio, LRO / LROC /
+          LOLA.
+          <a href="https://svs.gsfc.nasa.gov/4720">CGI Moon Kit and credits</a>
+          · <a href="https://svs.gsfc.nasa.gov/5587">NASA phase reference</a>
+        </p>
+      </details>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.js"></script>
+    <script type="module" src="renderer-preview.js"></script>
+  </body>
+</html>
