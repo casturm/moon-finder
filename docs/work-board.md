@@ -26,3 +26,16 @@ The user confirmed the natural renderer works on their iPhone and accepted the p
 ## Workflow
 
 Requirements, testing, code review, and integration are distinct approval gates. The user prefers a simple solo-project workflow; no PR requirement or branch protection was added. No separate hosting/deployment action was requested.
+
+## Compass field validation — new review branch
+
+Follow-up: debug observer-location form and `location=latitude,longitude` URL support implemented. Exact supplied coordinates, invalid/boundary values, GPS return link, and form submission validation checked in `tests/debug-location.mjs`. Production publishing remains pending write access and review/authorization.
+
+| Artifact / gate | Status | Evidence |
+| --- | --- | --- |
+| Proposed requirements | Draft; user approval pending | compass-validation-review.md, Proposed scope |
+| Implementation | Ready for review on codex/compass-validation | app.js, validation-model.js, validation-tools.js, style.css |
+| Test report | Calculation checks pass; approval pending; browser/hardware pending | compass-validation-review.md, Validation |
+| Code diff | Self-review complete; user approval pending | compass-validation-review.md, Code review; branch diff |
+| Integration | Pending explicit post-review authorization | No changes to main |
+| Deployment | Pending explicit post-review authorization | Production Pages not changed |
