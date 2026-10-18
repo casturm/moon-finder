@@ -28,10 +28,10 @@ Extend `?debug=1` with real sensor diagnostics, independent landmark and approxi
 
 `?debug=1&location=45.514615,-122.641564` now sets the observer location, skips GPS, and recalculates declination. A Test location form at the start of debug mode provides a visible override and a GPS return link. Invalid URL values produce an explicit error; non-debug URLs ignore this parameter. Applying the form reloads the page, so an outstanding GPS callback cannot replace the new override.
 
-`tests/debug-location.mjs` passes coordinate/URL/form checks and actual app startup checks in jsdom, including GPS suppression, malformed override handling, GPS fallback and ignoring the parameter outside debug. Existing validation DOM checks, JavaScript syntax and whitespace checks also pass. Physical browser/phone checks remain pending. GitHub write access and all outstanding review/integration/deployment gates are still pending.
+`tests/debug-location.mjs` passes coordinate/URL/form checks and actual app startup checks in jsdom, including GPS suppression, malformed override handling, GPS fallback and ignoring the parameter outside debug. Existing validation DOM checks, JavaScript syntax and whitespace checks also pass. Physical browser/phone checks remain pending.
 
-Requirements, test report, code diff, integration and deployment approvals are pending separately. No production merge/push/deployment is authorized by a prior gate. After review, obtain explicit authorization before integrating/deploying.
+The comparison link for review commit `6ec4c5a` was supplied to the user. On October 18, 2026 the user explicitly answered yes to merging and publishing these changes. This authorizes integration and deployment; it does not claim separate test-report approval or completion of real-phone validation.
 
 ## Delivery status
 
-Local implementation commit: `1b0aa8d`, branch `codex/compass-validation`. GitHub integration metadata reads succeeded, but uploading the tree returned 403 Resource not accessible by integration. CLI push also lacked credentials. The review branch has not been published and production is unchanged. `compass-validation.patch` preserves the implementation for applying with `git am`.
+An initial upload returned 403 and CLI push lacked credentials. Installing the ChatGPT Codex Connector for casturm resolved integration access. The implementation was then uploaded as `6ec4c5a` on `codex/compass-validation`. User-authorized integration and deployment are in progress; remote refs and the live Pages files establish final delivery status.

@@ -29,13 +29,13 @@ Requirements, testing, code review, and integration are distinct approval gates.
 
 ## Compass field validation — new review branch
 
-Follow-up: debug observer-location form and `location=latitude,longitude` URL support implemented. Exact supplied coordinates, invalid/boundary values, GPS return link, and form submission validation checked in `tests/debug-location.mjs`. Production publishing remains pending write access and review/authorization.
+Follow-up: debug observer-location form and `location=latitude,longitude` URL support implemented. Exact supplied coordinates, invalid/boundary values, GPS return link, and form submission validation checked in `tests/debug-location.mjs`. GitHub installation/write access was repaired. Review commit `6ec4c5a` was published to `codex/compass-validation`; the user explicitly approved merging and publishing after receiving the comparison link on October 18, 2026.
 
 | Artifact / gate | Status | Evidence |
 | --- | --- | --- |
-| Proposed requirements | Draft; user approval pending | compass-validation-review.md, Proposed scope |
-| Implementation | Ready for review on codex/compass-validation | app.js, validation-model.js, validation-tools.js, style.css |
-| Test report | Calculation checks pass; approval pending; browser/hardware pending | compass-validation-review.md, Validation |
-| Code diff | Self-review complete; user approval pending | compass-validation-review.md, Code review; branch diff |
-| Integration | Pending explicit post-review authorization | No changes to main |
-| Deployment | Pending explicit post-review authorization | Production Pages not changed |
+| Proposed requirements | Implemented per user request | compass-validation-review.md, Proposed scope |
+| Implementation | Complete | Review commit 6ec4c5a |
+| Test report | Calculation/DOM checks pass; physical browser/hardware pending | compass-validation-review.md, Validation; no separate test-report approval claimed |
+| Code diff | Comparison supplied; user authorized merging/publishing | User response to review-branch comparison link |
+| Integration | Explicitly authorized; executing | Fast-forward of main after checking current head |
+| Deployment | Explicitly authorized; verification pending | GitHub Pages release follows main |
