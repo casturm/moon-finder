@@ -1,11 +1,8 @@
 # Work board
 
-- Requirements: proposed in publication/README.md; user approval pending.
-- Implementation: codex/moon-journal branch; user approved pushing and opening a review PR.
-- Test report: 38 tests passed; workflow YAML and shell syntax checks passed; all five live NASA sources retrieved. Paid API and hosted workflow/Pages remain untested. Test-report approval pending.
-- Code diff: reviewed and defects fixed in draft PR #1; user code approval pending.
-- Integration: not authorized or performed.
-- Deployment: not authorized or performed.
-- Experiment activation and API spending: not performed; configuration required.
-
-- Spending ledger/dashboard: requested by user; implemented for review. Limits proposed: $5 total, $0.20/day and per run. Paid-call and remote-ledger activation remain pending.
+- PR #1: user reviewed, approved and merged; integration complete.
+- GitHub Pages: deployment job succeeded after merge.
+- Spending ledger: initialized by the user; report confirms zero calls, zero spend, $5 limit.
+- Artifact upload fix: excludes hidden report directory by default; enable hidden files only for .publication-run/ and fail if reports are missing. Review/merge approval pending.
+- Validation: workflow YAML parsed; 38 tests pass. Hosted artifact export awaits this fix.
+- Paid API calls and daily activation: not performed; configuration/approval pending.
