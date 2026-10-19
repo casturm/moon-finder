@@ -139,3 +139,23 @@ class Spending(unittest.TestCase):
             with patch.object(pipeline.urllib.request,'urlopen',side_effect=error):
                 with self.assertRaisesRegex(ValueError,'OpenAI HTTP 502'):model.ask('Select.',{})
         self.assertNotIn('private proxy details',json.dumps(report))
+
+    def test_json_mode_instruction_is_in_input_message(self):
+        report={'calls':[]};response=self.response()
+        response['output']=[{'content':[{'type':'output_text','text':'{"topic":"Moon phases"}'}]}]
+        captured=[]
+        def accept(request, **kwargs):
+            body=json.loads(request.data)
+            # Reproduce provider validation: input itself must mention JSON.
+            if 'json' not in body['input'].lower():
+                raise AssertionError('JSON-mode input instruction missing')
+            captured.append(body)
+            return io.BytesIO(json.dumps(response).encode())
+        with patch.dict(os.environ,{'MOON_MODEL':self.model,'OPENAI_API_KEY':'fake','MOON_LEDGER_PATH':str(self.path)}):
+            model=pipeline.Model(report)
+            with patch.object(pipeline.urllib.request,'urlopen',side_effect=accept):
+                result=model.ask('Select a topic.',{'sources':['lunar facts']})
+        self.assertEqual(result['topic'],'Moon phases')
+        self.assertEqual(captured[0]['text']['format']['type'],'json_object')
+        self.assertIn('lunar facts',captured[0]['input'])
+        self.assertEqual(self.store.read()['entries'][0]['state'],'settled')
