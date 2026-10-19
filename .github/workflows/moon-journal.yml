@@ -63,6 +63,8 @@ jobs:
         with:
           name: moon-journal-review-${{ github.run_id }}
           path: .publication-run/
+          include-hidden-files: true
+          if-no-files-found: error
           retention-days: 30
       - name: Summarize outcome
         if: always()
