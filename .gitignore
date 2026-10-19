@@ -1,0 +1,3 @@
+.publication-run/
+__pycache__/
+*.pyc
