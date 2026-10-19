@@ -13,11 +13,11 @@ The app remains at `/moon-finder/`; the publication is `/moon-finder/journal/` a
 - Days 11–20: adjust prompts/source library if topics repeat. Add news discovery only with date verification and attribution checks.
 - Days 21–30: assess usefulness and whether the archive earns repeat visits. Curate categories. Decide whether to continue with human approval.
 
-Target: up to 30 approved original articles, zero known unsupported claims, useful variety, under five minutes of review per article. One proposal per UTC date, not a guarantee of one published article: fail closed on poor sources or failed checks. Stop after 30 merged articles. Pause by setting `MOON_JOURNAL_ENABLED=false`. Scheduled Actions can be delayed or disabled by GitHub; this is best effort. There is no catch-up burst.
+Target: up to 30 approved original articles, zero known unsupported claims, useful variety, under five minutes of review per article. New generation pauses while an article PR is awaiting review; there is no review backlog. One proposal per UTC date, not a guarantee of one published article: fail closed on poor sources or failed checks. Stop after 30 merged articles. Pause by setting `MOON_JOURNAL_ENABLED=false`. Scheduled Actions can be delayed or disabled by GitHub; this is best effort. There is no catch-up burst.
 
 ## Approval and activation
 
-Implementation is local on `codex/moon-journal`. Requirements, tests, diff, integration and deployment remain separate approval gates per AGENTS.md. Nothing has been pushed or deployed.
+Implementation is proposed in draft PR #1 on `codex/moon-journal`. Requirements, tests, diff, integration and deployment remain separate approval gates per AGENTS.md. The user approved the review branch and PR; nothing has been merged or deployed.
 
 After reviewing and approving public changes:
 
@@ -43,6 +43,10 @@ To generate a paid proposal, provide `OPENAI_API_KEY` and `MOON_MODEL` in your e
 
 Every run writes `run.json` with outcome, stage usage/model/response IDs, source hashes and errors. The artifact also contains fetched source text, a claim/evidence review, article JSON and preview. GitHub retains these for 30 days. Failed jobs stay visible in Actions; configure GitHub failure notifications in your account. No external monitoring subscription or visitor tracking.
 
-Nine offline tests cover accepted/rejected drafts, citation failures, duplicate detection, unsafe source hosts, path traversal and escaped HTML. Live API/model behavior, source accessibility and GitHub workflow/Pages integration remain unverified. A separate model call is not independent scientific verification; it can miss claims or agree with the writer. Human review is mandatory. Word-overlap deduplication is heuristic; the topic selector and checker also see the archive. The NASA-only seed collection limits topic breadth and independent corroboration. Do not label this a news service yet. No images or ads are included.
+Sixteen offline tests cover accepted/rejected drafts, citation failures, duplicate detection, unsafe source hosts, path traversal and escaped HTML. All five curated NASA sources were successfully retrieved with the actual fetcher during review. Live API/model behavior and hosted GitHub workflow/Pages integration remain unverified. A separate model call is not independent scientific verification; it can miss claims or agree with the writer. Human review is mandatory. Word-overlap deduplication is heuristic; the topic selector and checker also see the archive. The NASA-only seed collection limits topic breadth and independent corroboration. Do not label this a news service yet. No images or ads are included.
 
 The API uses the official [Responses structured output guidance](https://developers.openai.com/api/docs/guides/structured-outputs?api-mode=responses); local validation rejects malformed/incomplete JSON and unsupported citations. Prompts and source pages never become shell commands. Source retrieval permits only the curated HTTPS NASA host, rejects redirects and bounds response size.
+
+## Review fixes
+
+See [review report](review-report.md) for defects fixed, regression coverage and remaining validation. Source pages are bounded to 2 MB each. The workflow captures one UTC date at preflight, fails on GitHub API read errors, pauses for open article reviews and recovers an existing daily branch if PR creation failed. CI checks article rendering and the offline suite without secrets.

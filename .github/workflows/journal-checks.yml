@@ -1,0 +1,24 @@
+name: Moon Journal checks
+on:
+  pull_request:
+    paths:
+      - 'publication/**'
+      - 'journal/**'
+      - 'tests/publication/**'
+      - '.github/workflows/*journal*.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest discover -s tests/publication -v
+      - name: Check committed pages match article data
+        run: |
+          python publication/pipeline.py --build
+          git diff --exit-code -- journal
