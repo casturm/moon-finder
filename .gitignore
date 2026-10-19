@@ -1,3 +1,4 @@
 .publication-run/
 __pycache__/
 *.pyc
+.publication-ledger*

@@ -16,6 +16,11 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      MOON_TOTAL_USD: ${{ vars.MOON_TOTAL_USD }}
+      MOON_DAILY_USD: ${{ vars.MOON_DAILY_USD }}
+      MOON_RUN_USD: ${{ vars.MOON_RUN_USD }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -49,6 +54,9 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.MOON_OPENAI_API_KEY }}
           MOON_MODEL: ${{ vars.MOON_MODEL }}
         run: python publication/pipeline.py --date "${{ steps.daily.outputs.date }}"
+      - name: Export durable ledger and dashboard
+        if: always()
+        run: python publication/spending.py export
       - name: Save evidence and usage
         if: always()
         uses: actions/upload-artifact@v4
@@ -61,6 +69,9 @@ jobs:
         run: |
           if test -f .publication-run/run.json; then
             cat .publication-run/run.json >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if test -f .publication-run/spending-summary.md; then
+            cat .publication-run/spending-summary.md >> "$GITHUB_STEP_SUMMARY"
           fi
       - name: Propose one article for human approval
         if: success() && (steps.daily.outputs.exists != 'true' || steps.daily.outputs.recover == 'true')
