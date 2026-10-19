@@ -17,7 +17,21 @@
       "input_bound": 76289,
       "output_bound": 3500,
       "reserved_usd": "0.011286125",
-      "state": "reserved"
+      "state": "settled",
+      "reconciliations": [
+        {
+          "previous_state": "reserved",
+          "previous_cost_usd": null,
+          "note": "Checked OpenAI usage for the correct project; no usage or charge for this failed request.",
+          "time": "2026-10-19T05:19:49.943170+00:00"
+        }
+      ],
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "cost_usd": "0",
+      "cost_basis": "provider-reconciled"
     }
   ]
 }
