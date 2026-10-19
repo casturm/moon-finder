@@ -3,6 +3,7 @@ from decimal import Decimal
 import importlib.util
 import json
 import io
+import urllib.error
 import os
 from pathlib import Path
 import tempfile
@@ -117,3 +118,24 @@ class Spending(unittest.TestCase):
     def test_run_call_limit(self):
         self.budget.settle(self.reserve(),self.response());self.settings['limits']['run_calls']=1
         with self.assertRaisesRegex(ValueError,'Call count'):self.reserve()
+
+    def test_http_error_reports_parameter_and_redacts_secret(self):
+        report={'calls':[]};secret='sk-fake-secret-do-not-log'
+        error=urllib.error.HTTPError('https://api.openai.com/v1/responses',400,'Bad Request',{},
+            io.BytesIO(json.dumps({'error':{'message':'Unsupported parameter example '+secret,
+                'code':'unsupported_parameter','param':'example','type':'invalid_request_error'}}).encode()))
+        with patch.dict(os.environ,{'MOON_MODEL':self.model,'OPENAI_API_KEY':secret,'MOON_LEDGER_PATH':str(self.path)}):
+            model=pipeline.Model(report)
+            with patch.object(pipeline.urllib.request,'urlopen',side_effect=error):
+                with self.assertRaisesRegex(ValueError,'Unsupported parameter'):model.ask('Select.',{})
+        diagnostic=report['calls'][0]['api_error']
+        self.assertEqual(diagnostic['param'],'example');self.assertNotIn(secret,json.dumps(report))
+        self.assertEqual(self.store.read()['entries'][0]['state'],'reserved')
+    def test_non_json_error_does_not_dump_html(self):
+        report={'calls':[]}
+        error=urllib.error.HTTPError('https://api.openai.com/v1/responses',502,'Gateway',{},io.BytesIO(b'<html>private proxy details</html>'))
+        with patch.dict(os.environ,{'MOON_MODEL':self.model,'OPENAI_API_KEY':'fake','MOON_LEDGER_PATH':str(self.path)}):
+            model=pipeline.Model(report)
+            with patch.object(pipeline.urllib.request,'urlopen',side_effect=error):
+                with self.assertRaisesRegex(ValueError,'OpenAI HTTP 502'):model.ask('Select.',{})
+        self.assertNotIn('private proxy details',json.dumps(report))

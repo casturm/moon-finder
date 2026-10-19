@@ -1,11 +1,9 @@
 # Work board
 
-- Requirements: proposed in publication/README.md; user approval pending.
-- Implementation: codex/moon-journal branch; user approved pushing and opening a review PR.
-- Test report: 38 tests passed; workflow YAML and shell syntax checks passed; all five live NASA sources retrieved. Paid API and hosted workflow/Pages remain untested. Test-report approval pending.
-- Code diff: reviewed and defects fixed in draft PR #1; user code approval pending.
-- Integration: not authorized or performed.
-- Deployment: not authorized or performed.
-- Experiment activation and API spending: not performed; configuration required.
-
-- Spending ledger/dashboard: requested by user; implemented for review. Limits proposed: $5 total, $0.20/day and per run. Paid-call and remote-ledger activation remain pending.
+- PR #1: reviewed, approved and merged by user; GitHub Pages deployment succeeded.
+- Artifact upload: user manually fixed and merged; export confirmed successful.
+- Ledger initialized; first daily test retrieved all sources but OpenAI returned HTTP 400 before topic generation. The request has an unresolved reservation, not confirmed spend.
+- API diagnostics: add redacted provider error fields and an explicit, audited reconciliation action. 40 local tests passed; code review and merge approval pending.
+- Exact cause of HTTP 400: unknown because original code discarded provider response details. No speculative model/parameter changes.
+- Billing reconciliation and any further paid call require operator verification; no hold released, no new paid calls made by this fix.
+- Daily generation: asked user to disable while debugging; current setting not verified.

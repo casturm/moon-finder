@@ -12,6 +12,7 @@ import re
 import sys
 import uuid
 import urllib.request
+import urllib.error
 import urllib.parse
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -112,8 +113,25 @@ class Model:
         self.report['calls'].append({'stage': role.split('.')[0], 'reservation_id': reservation,
                                      'model': body['model'], 'state': 'reserved'})
         # No automatic retries: bound spend and make failures visible.
-        with urllib.request.urlopen(request, timeout=120) as response:
-            data = json.load(response)
+        try:
+            with urllib.request.urlopen(request, timeout=120) as response:
+                data = json.load(response)
+        except urllib.error.HTTPError as error:
+            # Capture the provider's explanation without headers, request data or secrets.
+            diagnostic = {'http_status': error.code}
+            try:
+                detail = json.loads(error.read(16384)).get('error', {})
+                for key in ('type', 'code', 'param', 'message'):
+                    if not isinstance(detail.get(key), str): continue
+                    value = detail[key].replace(os.environ['OPENAI_API_KEY'], '[REDACTED]')
+                    value = re.sub(r'sk-[A-Za-z0-9_-]+', '[REDACTED]', value)
+                    diagnostic[key] = value[:800]
+            except (ValueError, AttributeError, OSError):
+                diagnostic['message'] = 'Provider returned no readable JSON error details'
+            self.report['calls'][-1]['api_error'] = diagnostic
+            explanation = diagnostic.get('message') or diagnostic.get('code') or 'See run.json'
+            # Keep the reservation until an operator verifies billing and reconciles it.
+            raise ValueError(f'OpenAI HTTP {error.code}: {explanation}') from None
         self.report['calls'][-1].update(usage=data.get('usage'), response_id=data.get('id'),
                                         response_model=data.get('model'))
         self.budget.settle(reservation, data)  # Persist spend even if JSON/content checks fail next.
