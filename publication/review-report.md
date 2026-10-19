@@ -18,3 +18,9 @@
 ## Remaining limits
 
 Hosted Actions execution and Pages configuration remain unverified. Workflow-created PR CI may need manual approval. Run one paid draft before enabling the schedule. Model fact checking is fallible and requires human editorial review. The source collection supports evergreen articles, not live news. Budget controls must be configured at the API provider; per-run token caps are not a dollar spending ceiling. Standard action major-version tags remain mutable; pin reviewed full commit hashes if stronger supply-chain controls become necessary.
+
+## Spending ledger extension
+
+Added reservation-before-request accounting on a separate GitHub branch, immediate settlement even for incomplete or invalid article responses, UTC daily/run/total limits, model rate snapshots, cached-token pricing, audit-preserving manual reconciliation and an offline dashboard with model filters, spend charts and settings export. Ledger initialization is explicit. No ledger branch has been created remotely and no API calls have been paid for.
+
+38 local tests passed, including spending limits, cross-run state, GitHub write conflict, timeouts, incomplete responses, missing usage and settlement failures. Dashboard zero-state, model filtering, cumulative view and settings export status were checked in the browser with clearly labeled simulated data. Download completion could not be inspected through the browser tool, although the page confirmed export. Remote ledger persistence and a real billed request remain untested.

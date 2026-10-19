@@ -59,7 +59,7 @@ class Gates(unittest.TestCase):
             (out / 'article.json').write_text('stale draft')
             source = {'url': URL, 'text': 'The Moon travels around Earth. ' * 30, 'sha256': 'fixture'}
             replies = [{'topic': 'Phases', 'source_urls': [URL]}, copy.deepcopy(ARTICLE), review]
-            with patch.object(p, 'fetch', return_value=source), patch.object(p.Model, 'ask', side_effect=replies):
+            with patch.object(p, 'fetch', return_value=source), patch.object(p.Model, 'ask', side_effect=replies), patch.object(p, 'store_from_env', return_value=object()):
                 if review['passed']:
                     p.run('2026-10-19', out)
                     self.assertTrue((out / 'article.json').exists())

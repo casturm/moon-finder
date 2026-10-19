@@ -1,0 +1,40 @@
+name: Moon Journal spending report
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: Export the ledger, or initialize it once before the first paid run
+        type: choice
+        options:
+          - export
+          - initialize
+        default: export
+permissions:
+  contents: write
+concurrency:
+  group: moon-journal
+  cancel-in-progress: false
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+      MOON_TOTAL_USD: ${{ vars.MOON_TOTAL_USD }}
+      MOON_DAILY_USD: ${{ vars.MOON_DAILY_USD }}
+      MOON_RUN_USD: ${{ vars.MOON_RUN_USD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Initialize ledger only when explicitly requested
+        if: inputs.action == 'initialize'
+        run: python publication/spending.py init
+      - run: python publication/spending.py export
+      - run: cat .publication-run/spending-summary.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: moon-spending-dashboard
+          path: .publication-run/
+          retention-days: 90

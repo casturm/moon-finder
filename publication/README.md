@@ -23,8 +23,8 @@ After reviewing and approving public changes:
 
 1. Push the review branch and open an implementation PR; review the diff and test report.
 2. Approve integration/deployment explicitly before merging. Verify the existing Pages branch/source configuration actually serves `/journal/`.
-3. Configure a dedicated low-spend OpenAI project key as secret `MOON_OPENAI_API_KEY`. Set `MOON_MODEL` to an available inexpensive model supporting Responses JSON mode. Model is explicit to avoid silently choosing a paid model.
-4. Set provider spending controls/alerts. Use a target budget of $5 for the experiment, not a promise: no price assumptions are embedded here. The code limits to 3 calls/run, 3,500 output tokens/call, five bounded source fetches, no retries, and 30 merged articles. Failed/unmerged days can still cost money; token caps are not a dollar spending limit.
+3. Configure a dedicated low-spend OpenAI project key as secret `MOON_OPENAI_API_KEY`. Set `MOON_MODEL` to an available inexpensive model supporting Responses JSON mode. Model is explicit to avoid silently choosing a paid model; it must also exist in the reviewed pricing map in publication/spending.json.
+4. Initialize the durable ledger using the Moon Journal spending report workflow (action: initialize). Review publication/spending.json and provider spending controls/alerts. Default pipeline limits are $5 total, $0.20/day and $0.20/run. Costs are estimates at the reviewed model rates, not an invoice guarantee. The code limits to 3 calls/run, 3,500 output tokens/call, five bounded source fetches, no retries, and 30 merged articles. Failed/unmerged days can still cost money; token caps are not a dollar spending limit.
 5. Allow Actions to create pull requests, then set repository variable `MOON_JOURNAL_ENABLED=true`. Run manually first. Cron is 14:23 UTC daily.
 6. Download the evidence artifact, read the preview and citations, then mark the draft ready. Require human review and disable auto-merge using repository rules. Merging the article PR publishes through existing Pages; approve this explicitly. No workflow auto-merges or directly deploys.
 
@@ -50,3 +50,7 @@ The API uses the official [Responses structured output guidance](https://develop
 ## Review fixes
 
 See [review report](review-report.md) for defects fixed, regression coverage and remaining validation. Source pages are bounded to 2 MB each. The workflow captures one UTC date at preflight, fails on GitHub API read errors, pauses for open article reviews and recovers an existing daily branch if PR creation failed. CI checks article rendering and the offline suite without secrets.
+
+## Spending dashboard and enforced limits
+
+See [spending operations](spending-operations.md). Every paid call now requires a durable reservation before sending, followed by immediate usage settlement. Failed article validation still counts as spend. Limits include total/daily/run USD, daily/run calls, daily tokens and per-call token caps. A missing ledger, storage conflict, unknown model rate, unresolved request or insufficient budget blocks further API calls.
