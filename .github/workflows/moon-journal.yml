@@ -23,21 +23,32 @@ jobs:
           python-version: '3.12'
       - name: Safety tests
         run: python -m unittest discover -s tests/publication -v
-      - name: Check for an existing daily proposal
+      - name: Check review queue and existing daily branch
         id: daily
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          set -euo pipefail
           DAY=$(date -u +%F)
-          if gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/codex/moon-journal-$DAY" >/dev/null 2>&1; then
+          echo "date=$DAY" >> "$GITHUB_OUTPUT"
+          BRANCH="codex/moon-journal-$DAY"
+          # A failed API read must stop the run, not be treated as an empty queue.
+          PENDING=$(gh pr list --limit 1000 --state open --json headRefName --jq '[.[] | select(.headRefName | startswith("codex/moon-journal-"))] | length')
+          if test "$PENDING" -gt 0; then
             echo 'exists=true' >> "$GITHUB_OUTPUT"
+            echo 'An article is awaiting review; skipping paid generation.'
+          fi
+          FOUND=$(gh api --paginate "repos/$GITHUB_REPOSITORY/branches?per_page=100" --jq ".[ ] | select(.name == \"$BRANCH\") | .name")
+          if test -n "$FOUND"; then
+            echo 'exists=true' >> "$GITHUB_OUTPUT"
+            echo 'recover=true' >> "$GITHUB_OUTPUT"
           fi
       - name: Generate reviewed proposal
         if: steps.daily.outputs.exists != 'true'
         env:
           OPENAI_API_KEY: ${{ secrets.MOON_OPENAI_API_KEY }}
           MOON_MODEL: ${{ vars.MOON_MODEL }}
-        run: python publication/pipeline.py
+        run: python publication/pipeline.py --date "${{ steps.daily.outputs.date }}"
       - name: Save evidence and usage
         if: always()
         uses: actions/upload-artifact@v4
@@ -52,26 +63,28 @@ jobs:
             cat .publication-run/run.json >> "$GITHUB_STEP_SUMMARY"
           fi
       - name: Propose one article for human approval
+        if: success() && (steps.daily.outputs.exists != 'true' || steps.daily.outputs.recover == 'true')
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          test -f .publication-run/article.json || exit 0
-          DAY=$(date -u +%F)
+          DAY="${{ steps.daily.outputs.date }}"
           BRANCH="codex/moon-journal-$DAY"
-          if gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/$BRANCH" >/dev/null 2>&1; then
-            echo 'Proposal branch already exists; review it instead of generating another.'
-            exit 0
+          if test "${{ steps.daily.outputs.recover }}" != 'true'; then
+            test -f .publication-run/article.json || exit 0
+            git switch -c "$BRANCH"
+            mkdir -p publication/articles
+            cp .publication-run/article.json "publication/articles/$DAY.json"
+            python publication/pipeline.py --build
+            git config user.name 'Moon Journal'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add publication/articles journal
+            git commit -m "Propose Moon Journal article for $DAY"
+            git push origin "$BRANCH"
           fi
-          git switch -c "$BRANCH"
-          mkdir -p publication/articles
-          cp .publication-run/article.json "publication/articles/$DAY.json"
-          python publication/pipeline.py --build
-          git config user.name 'Moon Journal'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add publication/articles journal
-          git commit -m "Propose Moon Journal article for $DAY"
-          git push origin "$BRANCH"
+          # Recover a pushed branch after a PR-creation failure without spending again.
+          EXISTING=$(gh pr list --state all --head "$BRANCH" --json number --jq 'length')
+          test "$EXISTING" -eq 0 || exit 0
           cat > /tmp/moon-pr.md <<'EOF'
           AI-generated article proposal. Human editorial approval is required; do not enable auto-merge.
 

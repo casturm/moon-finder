@@ -15,10 +15,10 @@ import urllib.parse
 ROOT = Path(__file__).resolve().parents[1]
 SOURCES = [
     'https://science.nasa.gov/moon/facts/',
-    'https://science.nasa.gov/moon/phases/',
+    'https://science.nasa.gov/moon/moon-phases/',
     'https://science.nasa.gov/moon/tides/',
     'https://science.nasa.gov/moon/exploration/',
-    'https://science.nasa.gov/moon/lunar-eclipses/',
+    'https://science.nasa.gov/moon/eclipses/',
 ]
 
 
@@ -46,8 +46,8 @@ def fetch(url):
     with urllib.request.build_opener(NoRedirect).open(request, timeout=25) as response:
         if 'text/html' not in response.headers.get('Content-Type', ''):
             raise ValueError('Expected HTML source')
-        raw = response.read(500001)
-        if len(raw) > 500000: raise ValueError('Source too large')
+        raw = response.read(2000001)
+        if len(raw) > 2000000: raise ValueError('Source too large')
     parser = Text(); parser.feed(raw.decode('utf-8'))
     text = ' '.join(parser.parts)[:18000]
     if len(text) < 500: raise ValueError('Source too short')
@@ -60,6 +60,10 @@ def similar(a, b):
 
 
 def validate(article, sources, archive):
+    if not isinstance(article, dict): raise ValueError('Invalid article')
+    if not isinstance(article.get('date'), str) or not re.fullmatch(r'\d{4}-\d{2}-\d{2}', article['date']):
+        raise ValueError('Invalid article date')
+    dt.date.fromisoformat(article['date'])
     if not re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', article['slug']):
         raise ValueError('Invalid slug')
     if not 12 <= len(article['title']) <= 140: raise ValueError('Invalid title')
@@ -71,7 +75,7 @@ def validate(article, sources, archive):
     for p in article['paragraphs']:
         if not isinstance(p['text'], str): raise ValueError('Invalid paragraph')
         words += len(p['text'].split())
-        if not p['sources'] or not set(p['sources']) <= allowed:
+        if not isinstance(p['sources'], list) or not p['sources'] or not set(p['sources']) <= allowed:
             raise ValueError('Every paragraph requires retrieved citations')
     if not 250 <= words <= 650: raise ValueError('Article must have 250–650 words')
     for old in archive:
@@ -104,14 +108,34 @@ class Model:
         return json.loads(text)
 
 
-def page(title, body):
-    return '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' + html.escape(title) + '</title><link rel="stylesheet" href="/moon-finder/journal/journal.css"><main>' + body + '</main></html>'
+def validate_review(review, article, sources):
+    if review.get('passed') is not True or review.get('issues') != [] or not review.get('claims'):
+        raise ValueError('Fact check failed')
+    covered = set()
+    for claim in review['claims']:
+        index = claim.get('paragraph')
+        if type(index) is not int or not 0 <= index < len(article['paragraphs']):
+            raise ValueError('Invalid review paragraph')
+        if claim['source_url'] not in article['paragraphs'][index]['sources']:
+            raise ValueError('Review source does not support cited paragraph')
+        evidence = next((s['text'] for s in sources if s['url'] == claim['source_url']), '')
+        quote = claim.get('evidence_quote')
+        if not isinstance(quote, str) or len(quote) < 12 or quote not in evidence:
+            raise ValueError('Fact checker evidence quote not found')
+        covered.add(index)
+    if covered != set(range(len(article['paragraphs']))):
+        raise ValueError('Fact checker skipped paragraphs')
+
+
+def page(title, body, stylesheet='journal.css'):
+    return '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' + html.escape(title) + '</title><link rel="stylesheet" href="' + stylesheet + '"><main>' + body + '</main></html>'
 
 
 def render(archive, destination):
     destination.mkdir(parents=True, exist_ok=True)
     links = []
     for a in sorted(archive, key=lambda x: x['date'], reverse=True):
+        validate(a, [{'url': u} for u in SOURCES], [])
         name = a['date'] + '-' + a['slug'] + '.html'
         sources = list(dict.fromkeys(u for p in a['paragraphs'] for u in p['sources']))
         body = '<nav><a href="../index.html">Moon Journal</a> · <a href="../../">Open Moon Finder</a></nav>'
@@ -120,7 +144,7 @@ def render(archive, destination):
             body += '<p>' + html.escape(p['text']) + ' ' + ' '.join('<a href="' + html.escape(u, quote=True) + '">[' + str(sources.index(u)+1) + ']</a>' for u in p['sources']) + '</p>'
         body += '<h2>Sources</h2><ol>' + ''.join('<li><a href="' + html.escape(u, quote=True) + '">' + html.escape(u) + '</a></li>' for u in sources) + '</ol>'
         (destination / 'articles').mkdir(exist_ok=True)
-        (destination / 'articles' / name).write_text(page(a['title'], body))
+        (destination / 'articles' / name).write_text(page(a['title'], body, '../journal.css'))
         links.append('<li><a href="articles/' + name + '">' + html.escape(a['title']) + '</a> <small>' + a['date'] + '</small></li>')
     body = '<nav><a href="../">Open Moon Finder ↗</a></nav><p>SCIENCE · HISTORY · OBSERVING</p><h1>A little closer to the Moon.</h1><p>A daily experiment in sourced lunar stories. AI researches and drafts; a person reviews before publication.</p><ul>' + ''.join(links) + '</ul>'
     if not links: body += '<p>Our first story is being prepared. In the meantime, explore the Moon in Moon Finder.</p>'
@@ -129,6 +153,10 @@ def render(archive, destination):
 
 def run(day, out):
     out.mkdir(parents=True, exist_ok=True)
+    dt.date.fromisoformat(day)
+    # Never let a previous successful draft survive a failed rerun.
+    for name in ('article.json', 'review.json', 'evidence.json'):
+        (out / name).unlink(missing_ok=True)
     report = {'date': day, 'status': 'started', 'calls': [], 'sources': []}
     try:
         archive = [json.loads(p.read_text()) for p in (ROOT / 'publication/articles').glob('*.json')]
@@ -158,18 +186,14 @@ def run(day, out):
         validate(article, selected, archive)
         review = model.ask('Independently audit every factual claim against supplied evidence. '
             'Also check originality and overlap with archive. Return JSON {passed: boolean, issues: [string], '
-            'claims: [{claim, source_url, evidence_quote}]}. Require exact supporting quotes for all factual claims; '
+            'claims: [{paragraph: zero-based integer, claim, source_url, evidence_quote}]}. '
+            'Cover every paragraph and every factual claim. Require exact supporting quotes for all factual claims; '
             'fail for unsupported claims, misleading certainty, stale news, or duplicate angles.',
             {'article': article, 'sources': selected, 'archive': archive})
         (out / 'review.json').write_text(json.dumps(review, indent=2))
-        if review.get('passed') is not True or review.get('issues') != [] or not review.get('claims'):
-            raise ValueError('Fact check failed')
-        for claim in review['claims']:
-            evidence = next((s['text'] for s in selected if s['url'] == claim['source_url']), '')
-            if len(claim['evidence_quote']) < 12 or claim['evidence_quote'] not in evidence:
-                raise ValueError('Fact checker evidence quote not found')
-        (out / 'article.json').write_text(json.dumps(article, indent=2) + '\n')
+        validate_review(review, article, selected)
         render(archive + [article], out / 'preview')
+        (out / 'article.json').write_text(json.dumps(article, indent=2) + '\n')
         report['status'] = 'awaiting-human-review'
     except Exception as e:
         report['status'] = 'failed'; report['error'] = type(e).__name__ + ': ' + str(e)[:250]
