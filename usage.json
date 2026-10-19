@@ -1,1 +1,23 @@
-{"version":1,"entries":[]}
+{
+  "version": 1,
+  "entries": [
+    {
+      "id": "d10f5529-f4bc-45eb-b1c7-e8a5c65ea31c",
+      "run_id": "39202108039-1",
+      "time": "2026-10-19T04:58:09.394994+00:00",
+      "stage": "Select a distinct lunar topic",
+      "model": "gpt-6-luna",
+      "rates": {
+        "input": "0.10",
+        "cached_input": "0.01",
+        "output": "0.50",
+        "reservation_input": "0.125"
+      },
+      "pricing_checked": "2026-10-18",
+      "input_bound": 76289,
+      "output_bound": 3500,
+      "reserved_usd": "0.011286125",
+      "state": "reserved"
+    }
+  ]
+}
