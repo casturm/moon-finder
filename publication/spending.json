@@ -1,0 +1,19 @@
+{
+  "currency": "USD",
+  "limits": {
+    "total_usd": "5.00",
+    "daily_usd": "0.20",
+    "run_usd": "0.20",
+    "daily_calls": 3,
+    "run_calls": 3,
+    "daily_tokens": 400000,
+    "max_input_tokens": 128000,
+    "max_output_tokens": 3500
+  },
+  "pricing_checked": "2026-10-18",
+  "pricing_source": "https://developers.openai.com/api/docs/pricing",
+  "models": {
+    "gpt-6-luna": {"input": "0.10", "cached_input": "0.01", "output": "0.50", "reservation_input": "0.125"},
+    "gpt-6.1-sol": {"input": "2.00", "cached_input": "0.10", "output": "10.00", "reservation_input": "2.50"}
+  }
+}
