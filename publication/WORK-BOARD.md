@@ -1,8 +1,9 @@
 # Work board
 
-- PR #1: user reviewed, approved and merged; integration complete.
-- GitHub Pages: deployment job succeeded after merge.
-- Spending ledger: initialized by the user; report confirms zero calls, zero spend, $5 limit.
-- Artifact upload fix: excludes hidden report directory by default; enable hidden files only for .publication-run/ and fail if reports are missing. Review/merge approval pending.
-- Validation: workflow YAML parsed; 38 tests pass. Hosted artifact export awaits this fix.
-- Paid API calls and daily activation: not performed; configuration/approval pending.
+- PR #1: reviewed, approved and merged by user; GitHub Pages deployment succeeded.
+- Artifact upload: user manually fixed and merged; export confirmed successful.
+- Ledger initialized; first daily test retrieved all sources but OpenAI returned HTTP 400 before topic generation. The request has an unresolved reservation, not confirmed spend.
+- API diagnostics: add redacted provider error fields and an explicit, audited reconciliation action. 40 local tests passed; code review and merge approval pending.
+- Exact cause of HTTP 400: unknown because original code discarded provider response details. No speculative model/parameter changes.
+- Billing reconciliation and any further paid call require operator verification; no hold released, no new paid calls made by this fix.
+- Daily generation: asked user to disable while debugging; current setting not verified.

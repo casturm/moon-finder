@@ -38,3 +38,11 @@ python3 publication/spending.py reconcile --id RESERVATION_ID --usage verified-u
 ```
 
 Optional `--billed-usd AMOUNT` records a verified provider dollar charge instead of the saved-rate estimate. Use the same remote environment as above for the Actions ledger. This preserves an audit note, previous state/cost and timestamp. Do not release a timeout hold solely because the client did not receive a response. Reconciled charges can exceed a limit; the next request will then be blocked. This version supports manual billing reconciliation, not automatic access to account-wide invoices or admin billing credentials.
+
+## API rejection diagnostics and recovery
+
+HTTP errors now record redacted provider message/type/code/parameter and HTTP status in run.json. The old first-run report only retained HTTP 400; its exact reason cannot be recovered from that artifact. An HTTP status alone is not used to release a spending reservation. No retries or automatic model substitutions occur.
+
+Keep MOON_JOURNAL_ENABLED=false during recovery. Check provider usage/billing for the rejected request. Once the charge and token usage are verified, run Moon Journal spending report with action **reconcile**, the reservation ID from run.json, provider-verified usage JSON, verified billed USD and a descriptive audit note. For a confirmed unbilled rejection, usage is {"input_tokens":0,"output_tokens":0} and billed USD is 0. Do not use zero merely because the client saw an error. This action only reconciles the ledger and exports a report; it never calls the model. It preserves the existing reconciliation audit trail. If billing cannot be confirmed, leave the reservation held.
+
+After merging the diagnostics fix and reconciling the old reservation, a separately authorized manual test will either generate an article or report the provider's actual rejection reason. A new HTTP error holds a new reservation and stops the run. Disable the schedule after the test if continuing investigation is needed.
