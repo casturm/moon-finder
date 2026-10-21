@@ -31,17 +31,22 @@ def config(path=CONFIG):
             raise ValueError('Invalid integer limit')
     for rates in data['models'].values():
         for key in ('input', 'cached_input', 'output', 'reservation_input'): money(rates[key])
-        if money(rates['reservation_input']) < max(money(rates['input']), money(rates['cached_input'])):
+        money(rates.get('cache_write', rates['reservation_input']))
+        if money(rates['reservation_input']) < max(money(rates['input']), money(rates['cached_input']),
+                                                  money(rates.get('cache_write', rates['reservation_input']))):
             raise ValueError('Reservation rate must cover input rates')
     return data
 
 
 def cost(usage, rates):
     incoming, outgoing = usage['input_tokens'], usage['output_tokens']
-    cached = usage.get('input_tokens_details', {}).get('cached_tokens', 0)
-    if any(type(n) is not int or n < 0 for n in (incoming, outgoing, cached)) or cached > incoming:
+    details = usage.get('input_tokens_details', {})
+    cached = details.get('cached_tokens', 0)
+    writes = details.get('cache_write_tokens', 0)
+    if any(type(n) is not int or n < 0 for n in (incoming, outgoing, cached, writes)) or cached + writes > incoming:
         raise ValueError('Invalid token usage')
-    return ((incoming-cached)*money(rates['input']) + cached*money(rates['cached_input'])
+    return ((incoming-cached-writes)*money(rates['input']) + cached*money(rates['cached_input'])
+            + writes*money(rates.get('cache_write', rates['reservation_input']))
             + outgoing*money(rates['output'])) / 1000000
 
 
@@ -137,7 +142,8 @@ class Budget:
                 raise ValueError('Usage exceeded reservation; reconcile manually')
             if amount > money(entry['reserved_usd']): raise ValueError('Cost exceeded reservation')
             entry.update(state='settled', usage=usage, cost_usd=str(amount), response_id=response.get('id'),
-                         response_model=response.get('model'), response_status=response.get('status'))
+                         response_model=response.get('model'), response_status=response.get('status'),
+                         incomplete_details=response.get('incomplete_details'))
         self.store.change(update)
     def reconcile(self, reservation, usage, note, billed_usd=None):
         if len(note.strip()) < 10: raise ValueError('Reconciliation requires an audit note')
