@@ -2,7 +2,7 @@
 
 ## Current status
 
-Compass reliability follow-up is on `codex/compass-recovery`, prompted by the user's iPhone report of a 40–50° disagreement and a shifted bearing after switching apps. Implementation is ready for review. All 11 browser UI groups and five model groups passed; syntax and whitespace checks passed. Evidence: `compass-recovery-report.md`. Follow-up physical observations: the user reports intermittent drift with the phone flat and improved alignment after rotating it; this does not establish a fixed offset or confirm a fix. Added a persistent compass warning explaining approximate alignment, possible drift, interference, and calibration limits. The warning copy is awaiting review; the prior automated results precede this text-only addition. Physical verification of the review-branch changes remains unperformed. No requirements artifact, test report, code diff, integration, or deployment has been approved for this follow-up. The user explicitly authorized committing and pushing this review branch. That instruction does not authorize merging to main or deployment. Earlier approvals below apply only to the earlier delivered work.
+Compass reliability follow-up is on `codex/compass-recovery`, prompted by the user's iPhone report of a 40–50° disagreement and a shifted bearing after switching apps. Implementation is ready for review. All 11 browser UI groups and five model groups passed; syntax and whitespace checks passed. Evidence: `compass-recovery-report.md`. Follow-up physical observations: the user reports intermittent drift with the phone flat and improved alignment after rotating it; this does not establish a fixed offset or confirm a fix. Added a persistent compass warning explaining approximate alignment, possible drift, interference, and calibration limits. The warning copy is awaiting review; the prior automated results precede this text-only addition. Physical verification of the review-branch changes remains unperformed. The user reviewed the changes, requested commit/push of the review branch, and then explicitly authorized merging to local main. This records code acceptance and local integration authorization for implementation commit `b239a18`; it does not record separate requirements or test-report approval, authorization to push main, or deployment approval. The user explicitly authorized committing and pushing this review branch. The later explicit merge request authorizes local integration; pushing main and deployment remain unauthorized. Earlier approvals below apply only to the earlier delivered work.
 
 ## Previous delivery status
 
@@ -30,3 +30,7 @@ The user confirmed the natural renderer works on their iPhone and accepted the p
 ## Workflow
 
 Requirements, testing, code review, and integration are distinct approval gates. The user prefers a simple solo-project workflow; no PR requirement or branch protection was added. No separate hosting/deployment action was requested.
+
+## Compass recovery integration
+
+User explicitly requested merging the review branch to main after reviewing the changes. Local main will fast-forward to the reviewed implementation plus this integration record. Remote main and deployment are unchanged by this local integration; Git refs record the resulting commit.
