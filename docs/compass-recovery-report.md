@@ -21,3 +21,9 @@ Physical iPhone verification: NOT RUN. Test with the phone flat in portrait, awa
 ## User guidance follow-up
 
 Added visible warning copy below compass guidance (including while waiting for a reading): alignment is approximate, sensor drift can occur even when alignment is shown, keep the phone flat and away from magnets/metal, and gentle rotation may help calibration without guaranteeing accuracy. This follows user observations of intermittent drift and improvement after rotating the phone; those observations were on the existing app and do not validate the review-branch changes. Text-only addition checked with `git diff --check`; the browser results above precede it. Copy and code remain unapproved for integration or deployment.
+
+## Reconciliation with remote main
+
+User authorized reconciliation and pushing main after the initial push rejection. Merged remote main `81ab89f`, preserving compass validation diagnostics and Moon Journal functionality. Resolved app conflicts by retaining both sensor diagnostic capture/reset and heading accuracy/background handling. Combined diff was inspected against remote main; no journal implementation changes were introduced by conflict resolution.
+
+Combined verification: all 11 browser UI groups, five model groups, three bearing-validation groups (including 160 solar comparisons), and 44 Moon Journal unit tests passed. Syntax and whitespace checks passed. `tests/debug-location.mjs` could not run because `jsdom` is missing; `tests/validation-ui.mjs` requires the same missing module and was not run. Physical iPhone verification remains unperformed. No separate test-report approval is inferred from authorization to integrate/push.

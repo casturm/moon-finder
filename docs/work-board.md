@@ -2,7 +2,7 @@
 
 ## Current status
 
-Compass reliability follow-up is on `codex/compass-recovery`, prompted by the user's iPhone report of a 40–50° disagreement and a shifted bearing after switching apps. Implementation is ready for review. All 11 browser UI groups and five model groups passed; syntax and whitespace checks passed. Evidence: `compass-recovery-report.md`. Follow-up physical observations: the user reports intermittent drift with the phone flat and improved alignment after rotating it; this does not establish a fixed offset or confirm a fix. Added a persistent compass warning explaining approximate alignment, possible drift, interference, and calibration limits. The warning copy is awaiting review; the prior automated results precede this text-only addition. Physical verification of the review-branch changes remains unperformed. The user reviewed the changes, requested commit/push of the review branch, and then explicitly authorized merging to local main. This records code acceptance and local integration authorization for implementation commit `b239a18`; it does not record separate requirements or test-report approval, authorization to push main, or deployment approval. The user explicitly authorized committing and pushing this review branch. The later explicit merge request authorizes local integration; pushing main and deployment remain unauthorized. Earlier approvals below apply only to the earlier delivered work.
+Compass reliability changes and warning are reconciled with remote main through `81ab89f` on `codex/compass-recovery`. The user explicitly authorized reconciliation, integration, and pushing main. Combined validation passed: 11 browser UI groups, five model groups, three bearing-validation groups (including 160 solar comparisons), and 44 Moon Journal tests; syntax/whitespace passed. Two standalone DOM suites were not run successfully because `jsdom` is unavailable. Physical iPhone verification of these changes remains unperformed. No separate requirements or test-report approval is claimed. Git refs record delivery status.
 
 ## Previous delivery status
 
@@ -34,3 +34,20 @@ Requirements, testing, code review, and integration are distinct approval gates.
 ## Compass recovery integration
 
 User explicitly requested merging the review branch to main after reviewing the changes. Local main will fast-forward to the reviewed implementation plus this integration record. Remote main and deployment are unchanged by this local integration; Git refs record the resulting commit.
+
+## Compass field validation — new review branch
+
+Follow-up: debug observer-location form and `location=latitude,longitude` URL support implemented. Exact supplied coordinates, invalid/boundary values, GPS return link, and form submission validation checked in `tests/debug-location.mjs`. GitHub installation/write access was repaired. Review commit `6ec4c5a` was published to `codex/compass-validation`; the user explicitly approved merging and publishing after receiving the comparison link on October 18, 2026.
+
+| Artifact / gate | Status | Evidence |
+| --- | --- | --- |
+| Proposed requirements | Implemented per user request | compass-validation-review.md, Proposed scope |
+| Implementation | Complete | Review commit 6ec4c5a |
+| Test report | Calculation/DOM checks pass; physical browser/hardware pending | compass-validation-review.md, Validation; no separate test-report approval claimed |
+| Code diff | Comparison supplied; user authorized merging/publishing | User response to review-branch comparison link |
+| Integration | Explicitly authorized; executing | Fast-forward of main after checking current head |
+| Deployment | Explicitly authorized; verification pending | GitHub Pages release follows main |
+
+## Remote reconciliation authorization
+
+The user explicitly authorized reconciling newer remote main changes and pushing the combined result after the initial push was rejected. Reconciliation preserves the compass validation diagnostics and Moon Journal work from remote main alongside compass reliability changes. App conflict resolution retains sensor diagnostics, accuracy state, and background-reading rejection. This authorization supersedes the earlier local-only integration limit; no separate test-report approval is inferred. Git refs record push delivery.

@@ -7,12 +7,14 @@ import {
 } from "./moon-model.js";
 import { MoonRenderer } from "./moon-renderer.js";
 import { surfaceRotation } from "./moon-surface-orientation.js";
+import { parseDebugLocation, installDebugLocation } from "./debug-location.js";
 const $ = (id) => document.getElementById(id);
 const debug = new URLSearchParams(location.search).get("debug") === "1";
 const state = {
   date: new Date(),
   mode: "live",
   location: null,
+  locationSource: null,
   moon: null,
   visible: false,
   compass: "hidden",
@@ -21,6 +23,7 @@ const state = {
   headingAccuracy: null,
   declination: null,
   renderer: "loading",
+  sensor: null,
 };
 const landscapeCompass = window.matchMedia("(orientation: landscape)");
 let orientationEvent = "deviceorientation";
@@ -30,6 +33,7 @@ let playback = null,
   permissionAttempt = 0,
   magvarPromise;
 $("debug-panel").hidden = !debug;
+if (debug) installDebugLocation($("debug-panel"), new URL(location.href));
 $("timezone").textContent =
   `(${Intl.DateTimeFormat().resolvedOptions().timeZone})`;
 const moonRenderer = new MoonRenderer($("moon-surface"), {
@@ -257,9 +261,16 @@ function stopSensors() {
   state.heading = null;
   state.source = null;
   state.headingAccuracy = null;
+  state.sensor = null;
 }
 function handleOrientation(event) {
   if (!state.visible || document.hidden || landscapeCompass.matches) return;
+  state.sensor = {
+    receivedAt: Date.now(), magnetic: event.webkitCompassHeading,
+    alpha: event.alpha, beta: event.beta, gamma: event.gamma,
+    accuracy: event.webkitCompassAccuracy, absolute: event.absolute,
+    eventType: event.type,
+  };
   let heading, source;
   const accuracy = event.webkitCompassAccuracy;
   if (
@@ -290,6 +301,7 @@ function handleOrientation(event) {
       ? accuracy
       : null;
   state.heading = normalizeDegrees(heading);
+  state.sensor.acceptedAt = Date.now();
   state.source = source;
   clearTimeout(headingTimeout);
   compassStatus(
@@ -304,6 +316,7 @@ function updateCompassLayout() {
   state.heading = null;
   state.source = null;
   state.headingAccuracy = null;
+  state.sensor = null;
   if (!state.visible || !listening) {
     renderFinder();
     diagnostics();
@@ -397,29 +410,31 @@ function requestLocation() {
     return;
   }
   navigator.geolocation.getCurrentPosition(
-    async (position) => {
+    (position) => {
       state.location = {
         latitude: position.coords.latitude,
         longitude: position.coords.longitude,
+        accuracy: position.coords.accuracy,
       };
+      state.locationSource = "gps";
       $("location-status").textContent = "Using your current location.";
       render();
-      try {
-        magvarPromise ??= import("https://esm.sh/magvar@2.2.0");
-        const { magvar } = await magvarPromise;
-        const correction = magvar(
-          state.location.latitude,
-          state.location.longitude,
-        );
-        state.declination = Number.isFinite(correction) ? correction : null;
-        diagnostics();
-      } catch {
-        state.declination = null;
-      }
+      updateDeclination();
     },
     locationFailure,
     { timeout: 10000, maximumAge: 300000 },
   );
+}
+async function updateDeclination() {
+  try {
+    magvarPromise ??= import("https://esm.sh/magvar@2.2.0");
+    const { magvar } = await magvarPromise;
+    const correction = magvar(state.location.latitude, state.location.longitude);
+    state.declination = Number.isFinite(correction) ? correction : null;
+  } catch {
+    state.declination = null;
+  }
+  diagnostics();
 }
 function locationFailure() {
   $("location-status").textContent =
@@ -444,4 +459,20 @@ window.addEventListener("pageshow", () => {
 });
 window.addEventListener("resize", () => moonRenderer.render());
 render();
-requestLocation();
+const testLocation = new URLSearchParams(location.search).get("location");
+if (debug && testLocation !== null) {
+  try {
+    state.location = parseDebugLocation(testLocation);
+    state.locationSource = "test override";
+    $("location-status").textContent = `Test location: ${state.location.latitude}, ${state.location.longitude}. Compass correction also uses this location; use GPS for physical field checks.`;
+    render();
+    updateDeclination();
+  } catch (error) {
+    $("location-status").textContent = "Invalid test location. Correct it in Test location below or choose Use my GPS location.";
+    $("test-location-error").textContent = error.message;
+  }
+} else {
+  requestLocation();
+}
+
+if (debug) import("./validation-tools.js").then(({installValidation}) => installValidation(() => state));

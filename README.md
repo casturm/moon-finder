@@ -21,3 +21,17 @@ Open `/renderer-preview.html` on the same local/ngrok server to explore the natu
 The renderer uses local NASA LROC color and LOLA elevation maps (about 2.2 MB total), actual-scale terrain normals and nearby terrain shadows, approximate lunar diffuse reflection, subtle phase-dependent earthshine, and an approximate lunar-axis orientation. It draws only when time/location/size changes, capped at 512 pixels; no continuous graphics loop or framework. Full libration, eclipses, photometric calibration and fine-scale crater shadows are not modeled. WebGL failure shows an explanation; the original photograph/mask renderer has been removed.
 
 Credits and asset regeneration: [lunar data](images/LUNAR-DATA.md). Independent checks: `node tests/renderer.mjs`; report: [renderer test report](docs/renderer-test-report.md). Real-phone GPU and Safari checks remain pending.
+
+## Compass field validation
+
+In debug mode, **Test location** accepts observer coordinates as `latitude,longitude`. Apply reloads using a shareable URL such as `?debug=1&location=45.514615,-122.641564`; GPS is not requested or used to overwrite a valid override. Malformed overrides show an error until corrected or **Use my GPS location** is selected. Outside debug mode the parameter is ignored. The override also determines magnetic declination, so use your real GPS position for physical compass validation.
+
+Open `https://casturm.github.io/moon-finder/?debug=1` after the validation branch is reviewed and deployed. Show compass, then scroll to Compass field checks. The tools use the production heading pipeline; no separate simulated compass is substituted.
+
+- **Known true bearing:** enter a surveyed/map bearing, not an uncorrected magnetic compass reading.
+- **Landmark coordinates:** enter a distant identifiable landmark's latitude/longitude from a map. An independent great-circle calculation gives its initial true bearing and distance from your GPS position. Nearby landmarks amplify coordinate uncertainty.
+- **Sun:** an independent implementation of NOAA's fractional-year solar approximation shows true azimuth and geometric altitude at the selected time. Return to Now for a physical check. Use shadows instead of looking at the Sun. This approximate reference is unsuitable for precision calibration, especially near the zenith/horizon. Sun comparisons do not independently validate the Moon; a link to USNO Sun/Moon altitude/azimuth tables is included.
+- Capture snapshots while aimed at the reference, then after a turn, tilt, or return from another app. Readings older than three seconds or not accepted by the compass pipeline are marked unusable. A turn-to-reference value becomes a heading discrepancy only when physically aimed at that reference.
+- Snapshots include exact coordinates and notes, stay in the current tab, and can be downloaded as JSON. They are not uploaded by these tools. Download before closing; Clear removes in-tab snapshots.
+
+Automated calculations: `node tests/validation.mjs` (requires the same pinned SunCalc fixture as existing tests). This checks known geometry, a published NREL solar example and a seasonal/hemisphere grid. It cannot certify phone sensor accuracy.

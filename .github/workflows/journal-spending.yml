@@ -1,0 +1,72 @@
+name: Moon Journal spending report
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: Export the ledger, or initialize it once before the first paid run
+        type: choice
+        options:
+          - export
+          - initialize
+          - reconcile
+        default: export
+      reservation_id:
+        description: Reconcile only — reservation ID from run.json
+        type: string
+      verified_usage_json:
+        description: Reconcile only — provider-verified usage JSON
+        type: string
+      verified_billed_usd:
+        description: Reconcile only — verified dollar charge, including 0 if confirmed unbilled
+        type: string
+      audit_note:
+        description: Reconcile only — describe the billing evidence you checked
+        type: string
+permissions:
+  contents: write
+concurrency:
+  group: moon-journal
+  cancel-in-progress: false
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+      MOON_TOTAL_USD: ${{ vars.MOON_TOTAL_USD }}
+      MOON_DAILY_USD: ${{ vars.MOON_DAILY_USD }}
+      MOON_RUN_USD: ${{ vars.MOON_RUN_USD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Initialize ledger only when explicitly requested
+        if: inputs.action == 'initialize'
+        run: python publication/spending.py init
+      - name: Reconcile only with explicit operator billing confirmation
+        if: inputs.action == 'reconcile'
+        env:
+          RESERVATION_ID: ${{ inputs.reservation_id }}
+          VERIFIED_USAGE: ${{ inputs.verified_usage_json }}
+          VERIFIED_BILLED_USD: ${{ inputs.verified_billed_usd }}
+          AUDIT_NOTE: ${{ inputs.audit_note }}
+        run: |
+          python - <<'PYCODE'
+          import json, os
+          from publication.spending import Budget, GitHubStore, config
+          if not os.environ['VERIFIED_BILLED_USD'].strip():
+              raise ValueError('Verify provider billing and enter the charge before reconciliation')
+          Budget(GitHubStore(), config(), 'manual-reconciliation').reconcile(
+              os.environ['RESERVATION_ID'], json.loads(os.environ['VERIFIED_USAGE']),
+              os.environ['AUDIT_NOTE'], os.environ['VERIFIED_BILLED_USD'])
+          PYCODE
+      - run: python publication/spending.py export
+      - run: cat .publication-run/spending-summary.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: moon-spending-dashboard
+          path: .publication-run/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 90

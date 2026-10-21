@@ -251,3 +251,7 @@ pre {
     padding: 10px 8px;
   }
 }
+
+#debug-panel pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: .8rem; }
+#debug-panel input, #debug-panel select { display: block; box-sizing: border-box; width: 100%; min-height: 44px; margin: .4rem 0 1rem; font: inherit; }
+#debug-panel button { margin: .3rem; min-height: 44px; }
