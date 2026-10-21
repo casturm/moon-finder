@@ -18,6 +18,7 @@ const state = {
   compass: "hidden",
   heading: null,
   source: null,
+  headingAccuracy: null,
   declination: null,
   renderer: "loading",
 };
@@ -187,6 +188,7 @@ setInterval(() => {
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) pause();
   else if (state.mode === "live") state.date = new Date();
+  if (state.visible && listening) updateCompassLayout();
   render();
 });
 function compassStatus(status, message, retry = false) {
@@ -210,7 +212,7 @@ function renderFinder() {
   $("orientation").hidden = !ready;
   if (!ready) return;
   const difference = shortestTurn(state.moon.azimuth, state.heading),
-    aligned = Math.abs(difference) <= 5;
+    aligned = Math.abs(difference) + (state.headingAccuracy ?? 0) <= 5;
   const facing = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"][
     Math.round(state.heading / 45) % 8
   ];
@@ -254,14 +256,28 @@ function stopSensors() {
   }
   state.heading = null;
   state.source = null;
+  state.headingAccuracy = null;
 }
 function handleOrientation(event) {
-  if (!state.visible || landscapeCompass.matches) return;
+  if (!state.visible || document.hidden || landscapeCompass.matches) return;
   let heading, source;
+  const accuracy = event.webkitCompassAccuracy;
   if (
     Number.isFinite(event.webkitCompassHeading) &&
     event.webkitCompassHeading >= 0
   ) {
+    if (Number.isFinite(accuracy) && (accuracy < 0 || accuracy > 15)) {
+      state.heading = null;
+      state.source = null;
+      state.headingAccuracy = accuracy;
+      clearTimeout(headingTimeout);
+      compassStatus(
+        "calibrating",
+        "Compass reading is unreliable. Move away from magnets or metal and move your phone to help it calibrate, then hold it flat in portrait.",
+        true,
+      );
+      return;
+    }
     if (state.declination === null) return;
     heading = event.webkitCompassHeading + state.declination;
     source = "Magnetic compass + declination";
@@ -269,6 +285,10 @@ function handleOrientation(event) {
     heading = 360 - event.alpha;
     source = "Absolute orientation (true north)";
   } else return;
+  state.headingAccuracy =
+    source === "Magnetic compass + declination" && Number.isFinite(accuracy)
+      ? accuracy
+      : null;
   state.heading = normalizeDegrees(heading);
   state.source = source;
   clearTimeout(headingTimeout);
@@ -283,9 +303,14 @@ function updateCompassLayout() {
   clearTimeout(headingTimeout);
   state.heading = null;
   state.source = null;
+  state.headingAccuracy = null;
   if (!state.visible || !listening) {
     renderFinder();
     diagnostics();
+    return;
+  }
+  if (document.hidden) {
+    compassStatus("paused", "Compass paused while the app is in the background.");
     return;
   }
   if (landscapeCompass.matches) {

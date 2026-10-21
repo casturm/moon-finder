@@ -105,4 +105,21 @@ await test('C5 heading-up cardinal positions and portrait-only lifecycle',async(
  assert.deepEqual(errors,[]);await context.close();return evidence;
 });
 await test('C6 opening in landscape waits without heading timeout',async()=>{const {context,page,errors}=await setup({debug:'?debug=1'});await page.locator('#compass-button').click();await page.waitForTimeout(5300);assert.equal(await page.locator('#compass-portrait-message').isVisible(),true);assert.equal(await page.evaluate(()=>window.__test.active.size),1);assert.equal(JSON.parse(await page.locator('#debug-content').textContent()).heading,null);await page.locator('#compass-button').click();assert.equal(await page.evaluate(()=>window.__test.active.size),0);assert.deepEqual(errors,[]);await context.close();});
+await test('C7 inaccurate iPhone readings and background recovery',async()=>{
+ const {context,page,errors}=await setup({debug:'?debug=1',mobile:true});
+ await page.locator('#compass-button').click();await heading(page,90);
+ const reading=async(accuracy)=>page.evaluate(accuracy=>{for(const type of ['deviceorientation','deviceorientationabsolute']){const e=new Event(type);Object.defineProperties(e,{webkitCompassHeading:{value:90},webkitCompassAccuracy:{value:accuracy}});window.dispatchEvent(e);}},accuracy);
+ for(const accuracy of [-1,40,50]) {await reading(accuracy);assert.equal(await page.locator('#orientation').isVisible(),false);assert.match(await page.locator('#compass-status').innerText(),/unreliable/);}
+ await reading(3);assert.equal(await page.locator('#orientation').isVisible(),true);
+ await page.evaluate(()=>{Object.defineProperty(document,'hidden',{value:true,configurable:true});document.dispatchEvent(new Event('visibilitychange'));});
+ assert.equal(await page.locator('#orientation').isVisible(),false);await reading(3);assert.equal(await page.locator('#orientation').isVisible(),false);
+ await page.waitForTimeout(5200);assert.equal(await page.evaluate(()=>window.__test.active.size),1);
+ await page.evaluate(()=>{Object.defineProperty(document,'hidden',{value:false,configurable:true});document.dispatchEvent(new Event('visibilitychange'));});
+ assert.equal(await page.locator('#orientation').isVisible(),false);assert.match(await page.locator('#compass-status').innerText(),/Waiting/);
+ await reading(3);assert.equal(await page.locator('#orientation').isVisible(),true);assert.equal(await page.evaluate(()=>window.__test.active.size),1);
+ const target=JSON.parse(await page.locator('#debug-content').innerText()).moon.azimuth;
+ await page.evaluate(target=>{for(const type of ['deviceorientation','deviceorientationabsolute']){const e=new Event(type);Object.defineProperties(e,{webkitCompassHeading:{value:target},webkitCompassAccuracy:{value:10}});window.dispatchEvent(e);}},target);
+ assert.equal(await page.locator('#orientation').evaluate(e=>e.classList.contains('aligned')),false);
+ assert.deepEqual(errors,[]);await context.close();
+});
 await writeFile(resolve(out,'ui-results.json'),JSON.stringify(results,null,2));await browser.close();server.close();if(results.some(r=>r.status==='FAIL'))process.exitCode=1;
