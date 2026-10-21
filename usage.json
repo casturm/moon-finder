@@ -64,6 +64,24 @@
       },
       "cost_usd": "0",
       "cost_basis": "provider-reconciled"
+    },
+    {
+      "id": "d14ebc77-10e0-4888-98b2-227e6d364809",
+      "run_id": "39523418945-1",
+      "time": "2026-10-21T00:47:29.349879+00:00",
+      "stage": "Select a distinct lunar topic",
+      "model": "gpt-6-luna",
+      "rates": {
+        "input": "0.10",
+        "cached_input": "0.01",
+        "output": "0.50",
+        "reservation_input": "0.125"
+      },
+      "pricing_checked": "2026-10-18",
+      "input_bound": 75859,
+      "output_bound": 3500,
+      "reserved_usd": "0.011232375",
+      "state": "reserved"
     }
   ]
 }
