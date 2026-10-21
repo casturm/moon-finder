@@ -120,8 +120,8 @@ function render() {
         : "Exploring · Paused";
   $("compass-context").textContent =
     state.mode === "live"
-      ? "Direction for now, using your current device heading."
-      : `Direction for ${state.date.toLocaleString()}, using your current device heading.`;
+      ? "Moon’s current direction · Turn your phone to align the markers."
+      : `Moon’s direction on ${state.date.toLocaleString()} · Using your phone’s current heading.`;
   renderFinder();
   diagnostics();
 }
@@ -214,6 +214,13 @@ function renderFinder() {
     state.heading !== null &&
     state.moon?.azimuth !== undefined;
   $("orientation").hidden = !ready;
+  const pending = state.visible && !landscape && !document.hidden &&
+    ["waiting", "calibrating"].includes(state.compass) && !ready;
+  $("compass-pending").hidden = !pending;
+  $("compass-pending").textContent = state.compass === "calibrating"
+    ? "Waiting for a usable compass reading…"
+    : "Waiting for your phone’s compass…";
+  $("orientation").classList.toggle("uncertain", ready && state.compass === "uncertain");
   if (!ready) return;
   const difference = shortestTurn(state.moon.azimuth, state.heading),
     aligned = Math.abs(difference) + (state.headingAccuracy ?? 0) <= 5;
@@ -241,7 +248,9 @@ function renderFinder() {
     aligned ? "translate(0 -18)" : "translate(0 0)",
   );
   $("phone-direction").textContent = facing;
-  const instruction = aligned
+  const instruction = state.compass === "uncertain"
+    ? "Approximate direction · Compass accuracy is low"
+    : aligned
     ? state.moon.altitude < 0
       ? "Bearing aligned · Moon below horizon"
       : "Aligned with Moon"
@@ -277,7 +286,7 @@ function handleOrientation(event) {
     Number.isFinite(event.webkitCompassHeading) &&
     event.webkitCompassHeading >= 0
   ) {
-    if (Number.isFinite(accuracy) && (accuracy < 0 || accuracy > 15)) {
+    if (Number.isFinite(accuracy) && accuracy < 0) {
       state.heading = null;
       state.source = null;
       state.headingAccuracy = accuracy;
@@ -304,11 +313,14 @@ function handleOrientation(event) {
   state.sensor.acceptedAt = Date.now();
   state.source = source;
   clearTimeout(headingTimeout);
+  const uncertain = state.headingAccuracy !== null && state.headingAccuracy > 15;
   compassStatus(
-    "active",
-    state.location
-      ? "Compass active. Hold your phone flat in portrait, with its top edge pointing ahead."
-      : "Compass active. Location needed for Moon guidance.",
+    uncertain ? "uncertain" : "active",
+    uncertain
+      ? "Compass accuracy is low. Direction is approximate; keep your phone flat and away from magnets or metal."
+      : state.location
+        ? "Compass active. Hold your phone flat in portrait, with its top edge pointing ahead."
+        : "Compass active. Location needed for Moon guidance.",
   );
 }
 function updateCompassLayout() {

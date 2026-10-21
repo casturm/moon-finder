@@ -109,7 +109,9 @@ await test('C7 inaccurate iPhone readings and background recovery',async()=>{
  const {context,page,errors}=await setup({debug:'?debug=1',mobile:true});
  await page.locator('#compass-button').click();await heading(page,90);
  const reading=async(accuracy)=>page.evaluate(accuracy=>{for(const type of ['deviceorientation','deviceorientationabsolute']){const e=new Event(type);Object.defineProperties(e,{webkitCompassHeading:{value:90},webkitCompassAccuracy:{value:accuracy}});window.dispatchEvent(e);}},accuracy);
- for(const accuracy of [-1,40,50]) {await reading(accuracy);assert.equal(await page.locator('#orientation').isVisible(),false);assert.match(await page.locator('#compass-status').innerText(),/unreliable/);}
+ await reading(-1);assert.equal(await page.locator('#orientation').isVisible(),false);assert.equal(await page.locator('#compass-pending').isVisible(),true);
+ for(const accuracy of [40,50,14,16,14,16]) {await reading(accuracy);assert.equal(await page.locator('#orientation').isVisible(),true);assert.equal(await page.locator('#compass-pending').isVisible(),false);assert.equal(await page.locator('#orientation').evaluate(e=>e.classList.contains('aligned')),false);}
+ await reading(40);assert.match(await page.locator('#finder-instruction').innerText(),/Approximate/);assert.match(await page.locator('#compass-status').innerText(),/accuracy is low/);
  await reading(3);assert.equal(await page.locator('#orientation').isVisible(),true);
  await page.evaluate(()=>{Object.defineProperty(document,'hidden',{value:true,configurable:true});document.dispatchEvent(new Event('visibilitychange'));});
  assert.equal(await page.locator('#orientation').isVisible(),false);await reading(3);assert.equal(await page.locator('#orientation').isVisible(),false);
