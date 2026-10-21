@@ -111,7 +111,9 @@ await test('C7 inaccurate iPhone readings and background recovery',async()=>{
  const reading=async(accuracy)=>page.evaluate(accuracy=>{for(const type of ['deviceorientation','deviceorientationabsolute']){const e=new Event(type);Object.defineProperties(e,{webkitCompassHeading:{value:90},webkitCompassAccuracy:{value:accuracy}});window.dispatchEvent(e);}},accuracy);
  await reading(-1);assert.equal(await page.locator('#orientation').isVisible(),false);assert.equal(await page.locator('#compass-pending').isVisible(),true);
  for(const accuracy of [40,50,14,16,14,16]) {await reading(accuracy);assert.equal(await page.locator('#orientation').isVisible(),true);assert.equal(await page.locator('#compass-pending').isVisible(),false);assert.equal(await page.locator('#orientation').evaluate(e=>e.classList.contains('aligned')),false);}
- await reading(40);assert.match(await page.locator('#finder-instruction').innerText(),/Approximate/);assert.match(await page.locator('#compass-status').innerText(),/accuracy is low/);
+ await reading(14);
+ await reading(40);assert.doesNotMatch(await page.locator('#compass-status').innerText(),/accuracy is low/);
+ await page.waitForTimeout(1600);await reading(40);assert.match(await page.locator('#finder-instruction').innerText(),/Approximate/);assert.match(await page.locator('#compass-status').innerText(),/accuracy is low/);
  await reading(3);assert.equal(await page.locator('#orientation').isVisible(),true);
  await page.evaluate(()=>{Object.defineProperty(document,'hidden',{value:true,configurable:true});document.dispatchEvent(new Event('visibilitychange'));});
  assert.equal(await page.locator('#orientation').isVisible(),false);await reading(3);assert.equal(await page.locator('#orientation').isVisible(),false);
@@ -121,7 +123,12 @@ await test('C7 inaccurate iPhone readings and background recovery',async()=>{
  await reading(3);assert.equal(await page.locator('#orientation').isVisible(),true);assert.equal(await page.evaluate(()=>window.__test.active.size),1);
  const target=JSON.parse(await page.locator('#debug-content').innerText()).moon.azimuth;
  await page.evaluate(target=>{for(const type of ['deviceorientation','deviceorientationabsolute']){const e=new Event(type);Object.defineProperties(e,{webkitCompassHeading:{value:target},webkitCompassAccuracy:{value:10}});window.dispatchEvent(e);}},target);
- assert.equal(await page.locator('#orientation').evaluate(e=>e.classList.contains('aligned')),false);
+ assert.equal(await page.locator('#orientation').evaluate(e=>e.classList.contains('aligned')),true);
+ assert.match(await page.locator('#finder-instruction').innerText(),/aligned/i);
+ await reading(16);assert.equal(await page.locator('#orientation').evaluate(e=>e.classList.contains('uncertain')),false);
+ await reading(40);await page.waitForTimeout(1600);await reading(40);
+ await reading(25);assert.equal(await page.locator('#orientation').evaluate(e=>e.classList.contains('uncertain')),true);
+ await reading(20);assert.equal(await page.locator('#orientation').evaluate(e=>e.classList.contains('uncertain')),false);
  assert.deepEqual(errors,[]);await context.close();
 });
 await writeFile(resolve(out,'ui-results.json'),JSON.stringify(results,null,2));await browser.close();server.close();if(results.some(r=>r.status==='FAIL'))process.exitCode=1;

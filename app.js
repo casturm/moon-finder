@@ -27,6 +27,8 @@ const state = {
 };
 const landscapeCompass = window.matchMedia("(orientation: landscape)");
 let orientationEvent = "deviceorientation";
+let lowAccuracySince = null;
+let accuracyWarning = false;
 let playback = null,
   headingTimeout = null,
   listening = false,
@@ -223,7 +225,7 @@ function renderFinder() {
   $("orientation").classList.toggle("uncertain", ready && state.compass === "uncertain");
   if (!ready) return;
   const difference = shortestTurn(state.moon.azimuth, state.heading),
-    aligned = Math.abs(difference) + (state.headingAccuracy ?? 0) <= 5;
+    aligned = state.compass !== "uncertain" && Math.abs(difference) <= 5;
   const facing = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"][
     Math.round(state.heading / 45) % 8
   ];
@@ -271,6 +273,8 @@ function stopSensors() {
   state.source = null;
   state.headingAccuracy = null;
   state.sensor = null;
+  lowAccuracySince = null;
+  accuracyWarning = false;
 }
 function handleOrientation(event) {
   if (!state.visible || document.hidden || landscapeCompass.matches) return;
@@ -290,6 +294,8 @@ function handleOrientation(event) {
       state.heading = null;
       state.source = null;
       state.headingAccuracy = accuracy;
+      lowAccuracySince = null;
+      accuracyWarning = false;
       clearTimeout(headingTimeout);
       compassStatus(
         "calibrating",
@@ -313,7 +319,17 @@ function handleOrientation(event) {
   state.sensor.acceptedAt = Date.now();
   state.source = source;
   clearTimeout(headingTimeout);
-  const uncertain = state.headingAccuracy !== null && state.headingAccuracy > 15;
+  // Warn only after sustained poor accuracy; a lower recovery threshold prevents flicker.
+  if (state.headingAccuracy === null || state.headingAccuracy <= 20) {
+    lowAccuracySince = null;
+    accuracyWarning = false;
+  } else if (state.headingAccuracy > 30) {
+    lowAccuracySince ??= performance.now();
+    if (performance.now() - lowAccuracySince >= 1500) accuracyWarning = true;
+  } else if (!accuracyWarning) {
+    lowAccuracySince = null;
+  }
+  const uncertain = accuracyWarning;
   compassStatus(
     uncertain ? "uncertain" : "active",
     uncertain
@@ -329,6 +345,8 @@ function updateCompassLayout() {
   state.source = null;
   state.headingAccuracy = null;
   state.sensor = null;
+  lowAccuracySince = null;
+  accuracyWarning = false;
   if (!state.visible || !listening) {
     renderFinder();
     diagnostics();
