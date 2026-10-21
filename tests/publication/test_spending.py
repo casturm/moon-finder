@@ -159,3 +159,25 @@ class Spending(unittest.TestCase):
         self.assertEqual(captured[0]['text']['format']['type'],'json_object')
         self.assertIn('lunar facts',captured[0]['input'])
         self.assertEqual(self.store.read()['entries'][0]['state'],'settled')
+
+    def test_cache_writes_and_hits_use_separate_rates(self):
+        usage={'input_tokens':1000,'output_tokens':200,
+               'input_tokens_details':{'cached_tokens':200,'cache_write_tokens':700}}
+        self.assertEqual(cost(usage,self.settings['models'][self.model]),Decimal('0.0001995'))
+    def test_cache_categories_cannot_exceed_input(self):
+        with self.assertRaises(ValueError):
+            cost({'input_tokens':10,'output_tokens':0,
+                  'input_tokens_details':{'cached_tokens':6,'cache_write_tokens':6}},self.settings['models'][self.model])
+    def test_incomplete_reason_survives_accounting(self):
+        response=self.response();response.update(status='incomplete',output=[],
+            incomplete_details={'reason':'max_output_tokens'})
+        report={'calls':[]}
+        with patch.dict(os.environ,{'MOON_MODEL':self.model,'OPENAI_API_KEY':'fake','MOON_LEDGER_PATH':str(self.path)}):
+            model=pipeline.Model(report)
+            with patch.object(pipeline.urllib.request,'urlopen',return_value=io.BytesIO(json.dumps(response).encode())) as http:
+                with self.assertRaisesRegex(ValueError,'max_output_tokens; output cap=8000'):
+                    model.ask('Review.',{})
+                self.assertEqual(json.loads(http.call_args.args[0].data)['max_output_tokens'],8000)
+        self.assertEqual(report['calls'][0]['incomplete_details']['reason'],'max_output_tokens')
+        self.assertEqual(self.store.read()['entries'][0]['incomplete_details']['reason'],'max_output_tokens')
+        self.assertEqual(self.store.read()['entries'][0]['state'],'settled')

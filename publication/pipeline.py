@@ -134,10 +134,13 @@ class Model:
             # Keep the reservation until an operator verifies billing and reconciles it.
             raise ValueError(f'OpenAI HTTP {error.code}: {explanation}') from None
         self.report['calls'][-1].update(usage=data.get('usage'), response_id=data.get('id'),
-                                        response_model=data.get('model'))
+                                        response_model=data.get('model'), response_status=data.get('status'),
+                                        incomplete_details=data.get('incomplete_details'))
         self.budget.settle(reservation, data)  # Persist spend even if JSON/content checks fail next.
         self.report['calls'][-1]['state'] = 'settled'
-        if data.get('status') != 'completed': raise ValueError('Incomplete model response')
+        if data.get('status') != 'completed':
+            reason = (data.get('incomplete_details') or {}).get('reason', 'unspecified')
+            raise ValueError(f'Incomplete model response: {reason}; output cap={body["max_output_tokens"]}')
         text = ''.join(c.get('text', '') for o in data['output'] for c in o.get('content', [])
                        if c.get('type') == 'output_text')
         return json.loads(text)
@@ -190,7 +193,7 @@ def run(day, out):
     out.mkdir(parents=True, exist_ok=True)
     dt.date.fromisoformat(day)
     # Never let a previous successful draft survive a failed rerun.
-    for name in ('article.json', 'review.json', 'evidence.json'):
+    for name in ('article.json', 'draft.json', 'review.json', 'evidence.json'):
         (out / name).unlink(missing_ok=True)
     report = {'date': day, 'status': 'started', 'calls': [], 'sources': []}
     try:
@@ -219,6 +222,7 @@ def run(day, out):
             {'topic': topic, 'sources': selected})
         article.update(date=day, topic=topic['topic'])
         validate(article, selected, archive)
+        (out / 'draft.json').write_text(json.dumps(article, indent=2) + '\n')
         review = model.ask('Independently audit every factual claim against supplied evidence. '
             'Also check originality and overlap with archive. Return JSON {passed: boolean, issues: [string], '
             'claims: [{paragraph: zero-based integer, claim, source_url, evidence_quote}]}. '

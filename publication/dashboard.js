@@ -18,7 +18,7 @@ function draw() {
   $('calls').replaceChildren();
   for(const e of [...filtered].reverse()) {
     const r=$('calls').insertRow();
-    [e.time.slice(0,19)+' / '+e.stage,e.model,e.usage?.input_tokens??'unknown',e.usage?.input_tokens_details?.cached_tokens??'—',e.usage?.output_tokens??'unknown',usd(amount(e)),e.state==='settled'?(e.cost_basis==='provider-reconciled'?'reconciled':'estimated'):'held · reconcile'].forEach(t=>cell(r,t));
+    [e.time.slice(0,19)+' / '+e.stage,e.model,e.usage?.input_tokens??'unknown',e.usage?.input_tokens_details?.cached_tokens??'—',e.usage?.input_tokens_details?.cache_write_tokens??'—',e.usage?.output_tokens??'unknown',usd(amount(e)),e.state==='settled'?(e.cost_basis==='provider-reconciled'?'reconciled':'estimated'):'held · reconcile'].forEach(t=>cell(r,t));
   }
   const days=new Map(); for(const e of filtered) days.set(e.time.slice(0,10),(days.get(e.time.slice(0,10))||0)+amount(e));
   const values=[...days].sort(([a],[b])=>a.localeCompare(b)); let cumulative=0;
@@ -43,7 +43,7 @@ function populate() {
   if(settings) {
     for(const [key,value] of Object.entries(settings.limits)) if($('limits').elements.namedItem(key)) $('limits').elements.namedItem(key).value=value;
     $('active-limits').textContent='Snapshot limits: '+usd(settings.limits.total_usd)+' total · '+usd(settings.limits.daily_usd)+'/day · '+settings.limits.daily_calls+' calls/day. Pricing checked '+settings.pricing_checked+'.';
-    $('prices').replaceChildren();for(const [model,r] of Object.entries(settings.models)){const row=$('prices').insertRow();[model,r.input,r.cached_input,r.output].forEach(t=>cell(row,t));}
+    $('prices').replaceChildren();for(const [model,r] of Object.entries(settings.models)){const row=$('prices').insertRow();[model,r.input,r.cached_input,r.cache_write??r.reservation_input,r.output].forEach(t=>cell(row,t));}
   }
   draw();
 }
@@ -53,7 +53,7 @@ for(const [id,kind] of [['ledger-file','ledger'],['settings-file','settings']]) 
 $('limits').addEventListener('submit',e=>{e.preventDefault();if(!settings){$('limit-status').textContent='Load the current settings first.';return;}const revised=structuredClone(settings);for(const [key,value] of new FormData(e.target)){const n=Number(value);if(!Number.isFinite(n)||n<0){$('limit-status').textContent='Use nonnegative finite limits.';return;}revised.limits[key]=key.endsWith('_usd')?n.toFixed(2):n;}download('spending.json',JSON.stringify(revised,null,2)+'\n','application/json');$('limit-status').textContent='Downloaded for review. Live limits have not changed. Replace publication/spending.json through a reviewed PR; USD repository variables take precedence.';});
 $('csv').addEventListener('click',()=>{
  const quote=x=>'"'+String(x??'').replaceAll('"','""')+'"';
- const rows=[['UTC time','run','stage','model','state','input tokens','cached tokens','output tokens','estimated or held USD'],...ledger.entries.map(e=>[e.time,e.run_id,e.stage,e.model,e.state,e.usage?.input_tokens,e.usage?.input_tokens_details?.cached_tokens,e.usage?.output_tokens,amount(e)])];
+ const rows=[['UTC time','run','stage','model','state','input tokens','cached tokens','cache write tokens','output tokens','estimated or held USD'],...ledger.entries.map(e=>[e.time,e.run_id,e.stage,e.model,e.state,e.usage?.input_tokens,e.usage?.input_tokens_details?.cached_tokens,e.usage?.input_tokens_details?.cache_write_tokens,e.usage?.output_tokens,amount(e)])];
  download('moon-spending.csv',rows.map(r=>r.map(quote).join(',')).join('\n'),'text/csv');
 });
 $('model').addEventListener('change',draw);$('view').addEventListener('change',draw);
