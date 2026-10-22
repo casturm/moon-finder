@@ -166,6 +166,25 @@
       "response_id": "resp_0b04eef3867cf931016ad80bb79ce487d1bfd6a900959b1a0e",
       "response_model": "gpt-6-luna",
       "response_status": "incomplete"
+    },
+    {
+      "id": "6b896e94-5d0e-4499-a5dc-fe95495872ac",
+      "run_id": "39711977315-1",
+      "time": "2026-10-22T02:33:00.975540+00:00",
+      "stage": "Select a distinct lunar topic",
+      "model": "gpt-6-luna",
+      "rates": {
+        "input": "0.10",
+        "cached_input": "0.01",
+        "output": "0.50",
+        "reservation_input": "0.125",
+        "cache_write": "0.125"
+      },
+      "pricing_checked": "2026-10-18",
+      "input_bound": 76764,
+      "output_bound": 8000,
+      "reserved_usd": "0.0135955",
+      "state": "reserved"
     }
   ]
 }
