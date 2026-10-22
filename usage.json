@@ -238,6 +238,25 @@
       "response_model": "gpt-6-luna",
       "response_status": "completed",
       "incomplete_details": null
+    },
+    {
+      "id": "7e4af32a-25c0-44d5-ac98-365505577bcb",
+      "run_id": "39711977315-1",
+      "time": "2026-10-22T02:33:18.447995+00:00",
+      "stage": "Independently audit every factual claim against supplied evidence",
+      "model": "gpt-6-luna",
+      "rates": {
+        "input": "0.10",
+        "cached_input": "0.01",
+        "output": "0.50",
+        "reservation_input": "0.125",
+        "cache_write": "0.125"
+      },
+      "pricing_checked": "2026-10-18",
+      "input_bound": 19870,
+      "output_bound": 8000,
+      "reserved_usd": "0.00648375",
+      "state": "reserved"
     }
   ]
 }
