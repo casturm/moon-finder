@@ -14,3 +14,8 @@
 - JSON input fix merged; live topic selection and article drafting now succeeded. Fact check used all 3,500 output tokens and ended incomplete. Run used three API calls, all settled, with no unresolved hold.
 - Review-capacity fix: propose 8,000 output tokens/call; USD limits and call counts unchanged. Preserve validated draft.json and incomplete reason. Correct cache-write token pricing for future estimates; historical costs remain unchanged pending audited reconciliation.
 - 44 offline tests pass; live rerun, review, merge and further spending remain pending. Current UTC day's three-call allowance is used; do not rerun until reset or explicit limit change.
+
+- Editor agent requested by user: model chooses choose_topic/research/draft/revise/check/submit/escalate with eight decisions, two revisions/topics and three extra catalog fetches. Proposed call allowance: 12/day and run, with existing USD/token limits unchanged.
+- Submission requires a passing check for the exact current draft and selected evidence. Topic changes, revisions and research invalidate prior approval. Model cannot alter limits, fetch arbitrary URLs or publish directly.
+- Escalations create a draft PR with question, feedback and decision history; no article is copied or rendered. Technical API/storage failures still stop without automatic retry.
+- Validation: 63 offline tests passed (including a rejected→revised→rechecked article), workflow YAML/shell checks passed, both added NASA sources fetched successfully. No live model calls or ledger changes made. Code review, merge and activation pending.

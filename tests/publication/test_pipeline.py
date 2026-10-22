@@ -58,13 +58,16 @@ class Gates(unittest.TestCase):
             out = Path(d)
             (out / 'article.json').write_text('stale draft')
             source = {'url': URL, 'text': 'The Moon travels around Earth. ' * 30, 'sha256': 'fixture'}
-            replies = [{'topic': 'Phases', 'source_urls': [URL]}, copy.deepcopy(ARTICLE), review]
-            with patch.object(p, 'fetch', return_value=source), patch.object(p.Model, 'ask', side_effect=replies), patch.object(p, 'store_from_env', return_value=object()):
+            replies = [
+                {'action':'choose_topic','reason':'Useful explainer','topic':'Phases','angle':'Orbit geometry','source_urls':[URL]},
+                {'action':'draft'}, copy.deepcopy(ARTICLE), {'action':'check'}, review,
+                {'action':'submit'} if review['passed'] else {'action':'escalate','question':'Review found unsupported claims; please advise.'}]
+            with patch.object(p, 'fetch', return_value=source), patch.object(p.Model, 'ask', side_effect=replies), patch.object(p, 'store_from_env', return_value=object()), patch.object(p.Model, 'budget_snapshot', return_value={}):
                 if review['passed']:
                     p.run('2026-10-19', out)
                     self.assertTrue((out / 'article.json').exists())
                 else:
-                    with self.assertRaises(ValueError): p.run('2026-10-19', out)
+                    p.run('2026-10-19', out)
                     self.assertFalse((out / 'article.json').exists())
                 return json.loads((out / 'run.json').read_text())
     def test_approved_draft(self):
@@ -72,7 +75,7 @@ class Gates(unittest.TestCase):
             {'paragraph': i, 'claim': 'Orbit', 'source_url': URL, 'evidence_quote': 'The Moon travels around Earth.'} for i in range(3)]})
         self.assertEqual(report['status'], 'awaiting-human-review')
     def test_rejected_draft(self):
-        self.assertEqual(self.simulate({'passed': False, 'issues': ['Unsupported claim'], 'claims': []})['status'], 'failed')
+        self.assertEqual(self.simulate({'passed': False, 'issues': ['Unsupported claim'], 'claims': []})['status'], 'needs-human-input')
 
 class WorkflowPreflight(unittest.TestCase):
     def preflight(self, pending='0', branch='', failure=False):

@@ -9,6 +9,10 @@ import urllib.request
 import urllib.error
 import uuid
 
+class BudgetStop(ValueError):
+    """A pre-call control blocked spending; do not retry automatically."""
+
+
 CONFIG = Path(__file__).with_name('spending.json')
 BRANCH = 'moon-journal-ledger'
 
@@ -104,11 +108,11 @@ class Budget:
         self.store, self.settings, self.run_id = store, settings, run_id
     def reserve(self, model, stage, input_bound, output_bound):
         if type(input_bound) is not int or input_bound < 0 or type(output_bound) is not int or output_bound <= 0:
-            raise ValueError('Invalid request token bounds')
-        if model not in self.settings['models']: raise ValueError('Model has no reviewed pricing')
+            raise BudgetStop('Invalid request token bounds')
+        if model not in self.settings['models']: raise BudgetStop('Model has no reviewed pricing')
         rates = self.settings['models'][model]; limits = self.settings['limits']
         if input_bound > limits['max_input_tokens'] or output_bound > limits['max_output_tokens']:
-            raise ValueError('Per-call token limit exceeded')
+            raise BudgetStop('Per-call token limit exceeded')
         amount = (input_bound*money(rates['reservation_input']) + output_bound*money(rates['output']))/1000000
         now = dt.datetime.now(dt.timezone.utc).isoformat()
         entry = {'id': str(uuid.uuid4()), 'run_id': self.run_id, 'time': now, 'stage': stage,
@@ -116,20 +120,20 @@ class Budget:
                  'input_bound': input_bound, 'output_bound': output_bound,
                  'reserved_usd': str(amount), 'state': 'reserved'}
         def add(data):
-            if data.get('version') != 1: raise ValueError('Unknown ledger version')
+            if data.get('version') != 1: raise BudgetStop('Unknown ledger version')
             entries = data['entries']
             if any(e['state'] != 'settled' for e in entries):
-                raise ValueError('Unresolved API reservation; reconcile before spending again')
+                raise BudgetStop('Unresolved API reservation; reconcile before spending again')
             daily = [e for e in entries if e['time'][:10] == now[:10]]
             run = [e for e in entries if e['run_id'] == self.run_id]
             for scope, items in (('total', entries), ('daily', daily), ('run', run)):
                 if sum((charged(e) for e in items), Decimal(0)) + amount > money(limits[scope+'_usd']):
-                    raise ValueError(scope + ' spending limit reached')
+                    raise BudgetStop(scope + ' spending limit reached')
             if len(daily) >= limits['daily_calls'] or len(run) >= limits['run_calls']:
-                raise ValueError('Call count limit reached')
+                raise BudgetStop('Call count limit reached')
             tokens = sum(e['usage']['input_tokens'] + e['usage']['output_tokens'] for e in daily)
             if tokens + input_bound + output_bound > limits['daily_tokens']:
-                raise ValueError('Daily token limit reached')
+                raise BudgetStop('Daily token limit reached')
             entries.append(entry)
         self.store.change(add)  # Must durably succeed BEFORE sending to OpenAI.
         return entry['id']

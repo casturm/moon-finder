@@ -4,8 +4,8 @@
     "total_usd": "5.00",
     "daily_usd": "0.20",
     "run_usd": "0.20",
-    "daily_calls": 3,
-    "run_calls": 3,
+    "daily_calls": 12,
+    "run_calls": 12,
     "daily_tokens": 400000,
     "max_input_tokens": 128000,
     "max_output_tokens": 8000
@@ -27,5 +27,11 @@
       "reservation_input": "2.50",
       "cache_write": "2.50"
     }
+  },
+  "editor": {
+    "max_decisions": 8,
+    "max_revisions": 2,
+    "max_topics": 2,
+    "max_research_fetches": 3
   }
 }
