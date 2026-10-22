@@ -12,7 +12,7 @@ jobs:
   propose:
     if: vars.MOON_JOURNAL_ENABLED == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 35
     permissions:
       contents: write
       pull-requests: write
@@ -84,23 +84,31 @@ jobs:
           DAY="${{ steps.daily.outputs.date }}"
           BRANCH="codex/moon-journal-$DAY"
           if test "${{ steps.daily.outputs.recover }}" != 'true'; then
-            test -f .publication-run/article.json || exit 0
+            if ! test -f .publication-run/article.json && ! test -f .publication-run/escalation.json; then exit 0; fi
             git switch -c "$BRANCH"
-            mkdir -p publication/articles
-            cp .publication-run/article.json "publication/articles/$DAY.json"
-            python publication/pipeline.py --build
+            if test -f .publication-run/article.json; then
+              mkdir -p publication/articles
+              cp .publication-run/article.json "publication/articles/$DAY.json"
+              python publication/pipeline.py --build
+              git add publication/articles journal
+            else
+              mkdir -p publication/escalations
+              cp .publication-run/escalation.json "publication/escalations/$DAY.json"
+              git add publication/escalations
+            fi
             git config user.name 'Moon Journal'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git add publication/articles journal
-            git commit -m "Propose Moon Journal article for $DAY"
+            git commit -m "Propose Moon Journal editorial result for $DAY"
             git push origin "$BRANCH"
           fi
           # Recover a pushed branch after a PR-creation failure without spending again.
           EXISTING=$(gh pr list --state all --head "$BRANCH" --json number --jq 'length')
           test "$EXISTING" -eq 0 || exit 0
           cat > /tmp/moon-pr.md <<'EOF'
-          AI-generated article proposal. Human editorial approval is required; do not enable auto-merge.
+          Moon Journal editor result. Human editorial approval is required; do not enable auto-merge.
 
-          Read every paragraph against its linked sources. Check originality, topic overlap, dates and uncertainty. The fact checker is a model and can miss errors. Download the workflow artifact for source snapshots, exact evidence quotes, preview and API usage. Merge only after editorial and deployment approval. Merging publishes through the existing GitHub Pages configuration; this workflow never merges or deploys.
+          If this PR contains publication/escalations/, the editor needs human input and no article was proposed for publication. Read its question, decision history and review issues. Merging an escalation record does not publish an article. Resolve the question or update the reviewed configuration, then close this PR before the next daily attempt. PR comments are not automatically ingested by the editor.
+
+          For article proposals, read every paragraph against its linked sources. Check originality, topic overlap, dates and uncertainty. The fact checker is a model and can miss errors. Download the workflow artifact for source snapshots, exact evidence quotes, preview and API usage. Merge only after editorial and deployment approval. Merging publishes through the existing GitHub Pages configuration; this workflow never merges or deploys.
           EOF
           gh pr create --draft --base "${{ github.event.repository.default_branch }}" --head "$BRANCH" --title "Moon Journal: $DAY editorial review" --body-file /tmp/moon-pr.md
