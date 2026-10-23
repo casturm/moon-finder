@@ -23,3 +23,18 @@ Artifacts include the latest draft/review, draft versions, evidence, each decisi
 This is a small application-owned agent loop using JSON action decisions and deterministic tool dispatch, without an agent framework. Research is bounded retrieval from a curated NASA catalog, not unrestricted web search or live news discovery. The independent checker is still a model and can miss errors; the human PR review remains essential.
 
 Validation: 63 offline tests cover successful and revised submissions, stale-check rejection, unapproved research, malformed decisions, topic/research limits, budget stops and API-error behavior. Both new catalog pages were fetched through the real retrieval code. No paid editor run has been executed. Review and merge this change before authorizing a live test.
+
+## Style feedback and exhausted revisions
+
+The reviewer reports blocking concerns in `issues` and advisory repetition, organization,
+tone and wording feedback in `style_suggestions`. `passed` refers to blocking concerns.
+Exact evidence quotes, paragraph coverage, citation validation and archive deduplication
+remain mandatory. Missing style suggestions are accepted for older review fixtures;
+malformed suggestions are rejected.
+
+Every revision must follow a review, and invalidates that review. After the final allowed
+revision, a fresh passing factual review submits the article directly for human PR review,
+with remaining suggestions in `editorial_notes`. A current passing draft is also preserved
+as an article proposal at the decision/call ceiling or if the editor tries to escalate.
+An unchecked draft or unresolved blocking concern still escalates. Dollar, token, call
+and revision limits are unchanged. No automatic merge or publication is added.

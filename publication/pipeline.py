@@ -166,6 +166,9 @@ class Model:
 def validate_review(review, article, sources):
     if review.get('passed') is not True or review.get('issues') != [] or not review.get('claims'):
         raise ValueError('Fact check failed')
+    suggestions = review.get('style_suggestions', [])
+    if not isinstance(suggestions, list) or any(not isinstance(note, str) for note in suggestions):
+        raise ValueError('Invalid style suggestions')
     covered = set()
     for claim in review['claims']:
         index = claim.get('paragraph')

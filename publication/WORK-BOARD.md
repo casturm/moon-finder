@@ -19,3 +19,7 @@
 - Submission requires a passing check for the exact current draft and selected evidence. Topic changes, revisions and research invalidate prior approval. Model cannot alter limits, fetch arbitrary URLs or publish directly.
 - Escalations create a draft PR with question, feedback and decision history; no article is copied or rendered. Technical API/storage failures still stop without automatic retry.
 - Validation: 63 offline tests passed (including a rejected→revised→rechecked article), workflow YAML/shell checks passed, both added NASA sources fetched successfully. No live model calls or ledger changes made. Code review, merge and activation pending.
+
+- User approved advisory style handling: distinguish blocking factual/unsupported/archived-duplicate concerns from style suggestions; submit a freshly fact-checked article PR when revisions run out, retaining editorial notes.
+- Require a fresh review between revisions to prevent repeated editing against stale feedback. Decision/call exhaustion can also preserve a current passing draft as an article proposal; unchecked or failed drafts still escalate.
+- Validation: 68 offline tests pass, including style-limit submission, factual/quote blocking and stale-feedback prevention. No paid calls, ledger changes, production merge or deployment. Code review and merge approval pending.

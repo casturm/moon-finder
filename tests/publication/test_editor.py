@@ -45,6 +45,46 @@ class EditorTests(unittest.TestCase):
             {'action':'check'},REVIEW,{'action':'submit'}])
         self.assertIsNotNone(e.run());self.assertEqual(e.revisions,1)
         self.assertIn('Remove unsupported rain claim',e.model.inputs[6]['feedback'])
+    def test_style_only_at_revision_limit_submits_with_notes(self):
+        style = dict(REVIEW, style_suggestions=['Paragraph 4 repeats an explanation.'])
+        e = self.make([TOPIC, {'action':'draft'}, ARTICLE, {'action':'check'}, style,
+            {'action':'revise'}, ARTICLE, {'action':'check'}, style],
+            limits=dict(config()['editor'], max_revisions=1))
+        result = e.run()
+        self.assertEqual(result['editorial_notes'], style['style_suggestions'])
+        self.assertEqual(e.revisions, 1)
+        self.assertFalse((e.out/'escalation.json').exists())
+
+    def test_factual_failure_at_revision_limit_still_blocks(self):
+        bad = {'passed':False, 'issues':['Unsupported claim'], 'claims':[],
+               'style_suggestions':['Shorten introduction']}
+        e = self.make([TOPIC, {'action':'draft'}, ARTICLE, {'action':'check'}, bad,
+            {'action':'escalate','question':'Unsupported claim remains'}],
+            limits=dict(config()['editor'], max_revisions=0))
+        self.assertIsNone(e.run())
+
+    def test_repeated_revision_requires_fresh_check(self):
+        e = self.make([TOPIC, {'action':'draft'}, ARTICLE, {'action':'revise'},
+            {'action':'escalate','question':'Need a check'}])
+        self.assertIsNone(e.run())
+        self.assertEqual(e.revisions, 0)
+        self.assertIn('Check the current draft', e.history[2]['feedback'][0])
+
+    def test_style_only_cannot_bypass_bad_evidence(self):
+        bad = copy.deepcopy(REVIEW)
+        bad['style_suggestions'] = ['Use shorter sentences']
+        bad['claims'][0]['evidence_quote'] = 'Invented supporting quote'
+        e = self.make([TOPIC, {'action':'draft'}, ARTICLE, {'action':'check'}, bad,
+            {'action':'escalate','question':'Evidence invalid'}],
+            limits=dict(config()['editor'], max_revisions=0))
+        self.assertIsNone(e.run())
+
+    def test_decision_limit_preserves_fact_checked_style_draft(self):
+        style = dict(REVIEW, style_suggestions=['Shorten introduction'])
+        e = self.make([TOPIC, {'action':'draft'}, ARTICLE, {'action':'check'}, style],
+            limits=dict(config()['editor'], max_decisions=3))
+        self.assertEqual(e.run()['editorial_notes'], style['style_suggestions'])
+
     def test_cannot_submit_unchecked_draft(self):
         e=self.make([TOPIC,{'action':'draft'},ARTICLE,{'action':'submit'},
             {'action':'escalate','question':'Need an independent check.'}])
