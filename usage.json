@@ -490,6 +490,25 @@
       "response_model": "gpt-6-luna",
       "response_status": "completed",
       "incomplete_details": null
+    },
+    {
+      "id": "7e738bbc-581b-40dd-a2fc-b83e4ecbd02b",
+      "run_id": "39895119166-1",
+      "time": "2026-10-23T03:29:02.569026+00:00",
+      "stage": "Write or revise a factual 250\u2013650 word lunar article in original language",
+      "model": "gpt-6-luna",
+      "rates": {
+        "input": "0.10",
+        "cached_input": "0.01",
+        "output": "0.50",
+        "reservation_input": "0.125",
+        "cache_write": "0.125"
+      },
+      "pricing_checked": "2026-10-18",
+      "input_bound": 38852,
+      "output_bound": 8000,
+      "reserved_usd": "0.0088565",
+      "state": "reserved"
     }
   ]
 }
