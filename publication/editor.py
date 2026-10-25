@@ -14,13 +14,14 @@ Return one JSON object with action and reason, plus the action's fields:
 - draft: ask the writer to draft the chosen topic.
 - revise: instructions explaining concrete changes to the current draft after feedback.
 - check: ask the independent reviewer to check the current draft.
-- submit: only after a successful check of the latest draft.
+- submit: after a successful factual check of the latest draft. Style suggestions are advisory.
 - escalate: question explaining precisely what requires human judgment.
 Research when evidence is thin, revise unsupported claims, change topic if necessary, and
 escalate for conflicting sources, unclear editorial decisions, or insufficient budget.
 Use concise reasons, not private chain-of-thought. Do not lower validation standards or
 fabricate citations. You have limited decisions and model calls: leave room for writing,
-checking and a submit decision. Stop rather than looping without improvement.'''
+checking and a submit decision. Recheck after each revision before revising again.
+Style alone must not cause escalation: submit with suggestions when revisions run out. Stop rather than looping without improvement.'''
 
 WRITE_PROMPT = '''Write or revise a factual 250–650 word lunar article in original language.
 Return JSON {title, slug, category, paragraphs: [{text, sources: [url]}]}.
@@ -31,13 +32,15 @@ Do not call the Moon airless without explaining its tenuous exosphere. Explain u
 only where the evidence supports it. No invented news, dates, quotes or viewing forecasts.'''
 
 CHECK_PROMPT = '''Independently audit every factual claim in this draft against supplied sources.
-Return JSON {passed: boolean, issues: [string], claims: [{paragraph: zero-based integer,
+Return JSON {passed: boolean, issues: [string], style_suggestions: [string], claims: [{paragraph: zero-based integer,
 claim, source_url, evidence_quote}]}. Cover every paragraph and factual claim.
 Evidence quotes MUST be exact contiguous substrings, never ellipses or stitched passages.
 Read qualified statements in context; distinguish factual errors from stylistic preferences.
-Flag substantive unsupported assertions, contradictory evidence and duplicate angles.
+Put factual errors, unsupported assertions, contradictory evidence and substantial duplication
+of archived articles in issues; these block passage. Put repetition within the draft, tone,
+organization and wording preferences ONLY in style_suggestions; these do not affect passed.
 An empty archive is not itself an issue. Do not require the draft to discuss unrelated facts.
-Fail if any substantive issue remains. No claims of verification beyond supplied evidence.'''
+Fail if any blocking issue remains. Pass with style suggestions if facts are supported. No claims of verification beyond supplied evidence.'''
 
 
 class Editor:
@@ -69,6 +72,7 @@ class Editor:
                 'archive': [{'title': a['title'], 'topic': a.get('topic'),
                              'excerpt': ' '.join(p['text'] for p in a['paragraphs'])[:500]}
                             for a in self.archive],
+                'revisions_remaining': self.limits['max_revisions']-self.revisions,
                 'decisions_remaining': self.limits['max_decisions']-step,
                 'calls_used': len(self.model.report['calls']),
                 'run_call_limit': self.model.settings['limits']['run_calls'],
@@ -119,6 +123,7 @@ class Editor:
             if not self.topic: raise ValueError('Choose a topic first')
             if action == 'revise':
                 if self.draft is None: raise ValueError('No draft to revise')
+                if self.review is None: raise ValueError('Check the current draft before another revision')
                 if self.revisions >= self.limits['max_revisions']: raise ValueError('Revision limit reached')
                 self.revisions += 1
             self.checked = None; self.review = None
@@ -139,13 +144,11 @@ class Editor:
                 'archive': self.context(0)['archive']})
             self.save('review.json', self.review)
             self.check(self.review, self.draft, self.selected())
-            self.checked = self.signature(); self.feedback = []
+            self.checked = self.signature(); self.feedback = self.review.get('style_suggestions', [])
+            if self.revisions >= self.limits['max_revisions']:
+                return self.submission()
         elif action == 'submit':
-            if not self.checked or self.checked != self.signature():
-                raise ValueError('Cannot submit without a passing check of the latest draft and evidence')
-            self.validate(self.draft, self.selected(), self.archive)
-            self.check(self.review, self.draft, self.selected())
-            return self.draft
+            return self.submission()
         elif action == 'escalate':
             question = decision.get('question')
             if not isinstance(question, str) or not question.strip(): raise ValueError('Escalation needs a question')
@@ -153,6 +156,16 @@ class Editor:
         else:
             raise ValueError('Unknown editor action')
         return None
+
+    def submission(self):
+        if not self.checked or self.checked != self.signature():
+            raise ValueError('Cannot submit without a passing check of the latest draft and evidence')
+        self.validate(self.draft, self.selected(), self.archive)
+        self.check(self.review, self.draft, self.selected())
+        article = dict(self.draft)
+        article['editorial_notes'] = list(self.review.get('style_suggestions', []))
+        self.save('editor.json', self.history)
+        return article
 
     def run(self):
         for step in range(self.limits['max_decisions']):
@@ -177,11 +190,14 @@ class Editor:
                     record['result'] = 'needs-work'; record['feedback'] = self.feedback
                 else:
                     record['result'] = 'completed'
-                    if result == 'escalate': return self.escalate(decision['question'])
+                    if result == 'escalate':
+                        if self.checked == self.signature(): return self.submission()
+                        return self.escalate(decision['question'])
                     if isinstance(result, dict):
                         self.save('editor.json', self.history); return result
                 self.save('editor.json', self.history)
             except BudgetStop as error:
+                if self.checked == self.signature(): return self.submission()
                 return self.escalate('Budget or call limit stopped editing: ' + str(error))
             except (ValueError, KeyError, TypeError) as error:
                 calls = self.model.report['calls']
@@ -189,4 +205,5 @@ class Editor:
                 self.feedback = ['Invalid editor decision: ' + str(error)[:500]]
                 self.history.append({'step': step+1, 'action': 'invalid', 'feedback': self.feedback})
                 self.save('editor.json', self.history)
+        if self.checked == self.signature(): return self.submission()
         return self.escalate('Editor decision limit reached. Review the saved draft, evidence and feedback.')
