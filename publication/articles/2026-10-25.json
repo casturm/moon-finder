@@ -1,0 +1,38 @@
+{
+  "title": "Why Don\u2019t Eclipses Happen Every Month?",
+  "slug": "why-dont-eclipses-happen-every-month",
+  "category": "science",
+  "paragraphs": [
+    {
+      "text": "The Moon\u2019s phases track its changing position as it orbits Earth. The Sun always illuminates half the Moon, but as the Moon moves around Earth, we see different portions of that sunlit half. The phase cycle\u2014from one new Moon to the next\u2014takes about 29.5 days. New and full Moons occur every cycle, but those phases mark only the general arrangements for eclipses; they do not guarantee a precise alignment of the Sun, Earth, and Moon.",
+      "sources": [
+        "https://science.nasa.gov/moon/moon-phases/",
+        "https://science.nasa.gov/moon/eclipses/"
+      ]
+    },
+    {
+      "text": "The reason is the Moon\u2019s orbit: it is tilted about 5 degrees relative to the plane of Earth\u2019s orbit around the Sun. So at most new Moons, the Moon passes above or below the Sun from Earth\u2019s perspective instead of directly in front of it. At most full Moons, the corresponding geometry also misses the alignment that would place the Moon in Earth\u2019s shadow. The phase cycle continues, while the tilted orbit usually carries the Moon away from the precise alignment needed for an eclipse.",
+      "sources": [
+        "https://science.nasa.gov/moon/eclipses/"
+      ]
+    },
+    {
+      "text": "A solar eclipse can happen only at new Moon, when the Moon is between Earth and the Sun. If they align closely enough, the Moon blocks the Sun from view and casts its shadow on Earth. A lunar eclipse can happen only at full Moon, when Earth is between the Sun and the Moon; in a close enough alignment, Earth\u2019s shadow falls on the Moon. The two eclipses therefore require opposite arrangements, and each also requires the bodies to line up closely enough.",
+      "sources": [
+        "https://science.nasa.gov/moon/eclipses/"
+      ]
+    },
+    {
+      "text": "When the geometry does align, eclipses occur several times a year: NASA says there are anywhere from four to seven annually. That does not mean every eclipse is visible from every location. A lunar eclipse can be seen from half of Earth, while a solar eclipse is visible from a much smaller area each time. In short, the Moon reaches new and full phases on its monthly cycle, but its tilted orbit means the shadow alignments needed for eclipses happen only occasionally.",
+      "sources": [
+        "https://science.nasa.gov/moon/eclipses/",
+        "https://science.nasa.gov/moon/moon-phases/"
+      ]
+    }
+  ],
+  "date": "2026-10-25",
+  "topic": "Why don\u2019t eclipses happen every month?",
+  "editorial_notes": [
+    "The final sentence restates the central explanation from the preceding paragraphs; consider trimming it for a more concise ending."
+  ]
+}
