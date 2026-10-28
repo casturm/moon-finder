@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-28",
+  "status": "needs-human-input",
+  "question": "Budget or call limit stopped editing: Unresolved API reservation; reconcile before spending again",
+  "topic": {
+    "topic": "Why a lunar month lasts longer than the Moon\u2019s orbit around Earth",
+    "angle": "Explain the difference between the Moon\u2019s roughly 27.3-day orbit and its roughly 29.5-day phase cycle: as the Moon orbits, Earth also moves around the Sun, so the Moon must travel a little farther to return to the same Sun-Earth-Moon alignment. Keep the explanation grounded in what observers see from one new Moon to the next.",
+    "source_urls": [
+      "https://science.nasa.gov/moon/moon-phases/",
+      "https://science.nasa.gov/moon/facts/"
+    ]
+  },
+  "feedback": [],
+  "review_issues": [],
+  "decisions": [
+    {
+      "step": 1,
+      "action": "choose_topic",
+      "reason": "NASA\u2019s phase and Moon facts pages directly support the key comparison and its explanation.",
+      "result": "completed"
+    },
+    {
+      "step": 2,
+      "action": "draft",
+      "reason": "The NASA sources support the orbital-period and phase-cycle comparison and explain why the cycle takes longer; ask the writer to ground the explanation in the new-Moon-to-new-Moon view and cite these sources.",
+      "result": "completed"
+    },
+    {
+      "step": 3,
+      "action": "check",
+      "reason": "The NASA sources support the core comparison; request an independent factual review of the current draft, especially its explanation of the changing alignment.",
+      "result": "needs-work",
+      "feedback": [
+        "Fact checker evidence quote not found"
+      ]
+    },
+    {
+      "step": 4,
+      "action": "revise",
+      "reason": "The review flags an evidence-quote mismatch; align the Earth-motion explanation with the NASA Moon Facts page and ensure every cited claim is supported by the cited source.",
+      "result": "completed"
+    }
+  ]
+}
