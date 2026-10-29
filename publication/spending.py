@@ -79,12 +79,51 @@ class GitHubStore:
     def __init__(self):
         self.repo = os.environ['GITHUB_REPOSITORY']; self.token = os.environ['GH_TOKEN']
         self.route = f'/repos/{self.repo}/contents/usage.json'
+        self.trace_path = Path('.publication-run/ledger-diagnostics.jsonl')
+        self.session_id = str(uuid.uuid4())
+        self.last_write = self.last_read = None
+
+    def trace(self, event, **fields):
+        # Allowlisted metadata only: never log tokens, headers wholesale, or ledger contents.
+        record = {'time': dt.datetime.now(dt.timezone.utc).isoformat(),
+                  'session_id': self.session_id, 'run_id': os.environ.get('GITHUB_RUN_ID'),
+                  'run_attempt': os.environ.get('GITHUB_RUN_ATTEMPT'), 'event': event, **fields}
+        self.trace_path.parent.mkdir(parents=True, exist_ok=True)
+        with self.trace_path.open('a') as stream:
+            stream.write(json.dumps(record) + '\n')
+
     def api(self, path, body=None, method=None):
         request = urllib.request.Request('https://api.github.com' + path,
             data=None if body is None else json.dumps(body).encode(), method=method,
             headers={'Authorization': 'Bearer ' + self.token, 'Accept': 'application/vnd.github+json',
                      'Content-Type': 'application/json', 'X-GitHub-Api-Version': '2022-11-28'})
-        with urllib.request.urlopen(request, timeout=30) as response: return json.load(response)
+        started = dt.datetime.now(dt.timezone.utc).isoformat()
+        metadata = {'started': started, 'method': request.get_method(), 'path': path}
+        try:
+            with urllib.request.urlopen(request, timeout=30) as response:
+                metadata.update(status=response.status,
+                    request_id=response.headers.get('X-GitHub-Request-Id'),
+                    etag=response.headers.get('ETag'), server_date=response.headers.get('Date'))
+                data = json.load(response)
+        except Exception as error:
+            # Error text/bodies may contain sensitive data; record only type and safe headers.
+            if isinstance(error, urllib.error.HTTPError):
+                metadata.update(status=error.code,
+                    request_id=error.headers.get('X-GitHub-Request-Id'))
+            self.trace('api_error', **metadata, error_type=type(error).__name__)
+            raise
+        if path.startswith(self.route):
+            if request.get_method() == 'GET':
+                self.last_read = {'file_sha': data.get('sha'), **metadata}
+                self.trace('ledger_read', **self.last_read, last_acknowledged_write=self.last_write)
+            else:
+                self.last_write = {'file_sha': (data.get('content') or {}).get('sha'),
+                    'commit_sha': (data.get('commit') or {}).get('sha'), **metadata}
+                self.trace('ledger_write_acknowledged', **self.last_write,
+                           previous_file_sha=(body or {}).get('sha'))
+        else:
+            self.trace('api_response', **metadata)
+        return data
     def read_file(self):
         obj = self.api(self.route + '?ref=' + BRANCH)
         return json.loads(base64.b64decode(obj['content'])), obj['sha']
@@ -122,7 +161,14 @@ class Budget:
         def add(data):
             if data.get('version') != 1: raise BudgetStop('Unknown ledger version')
             entries = data['entries']
-            if any(e['state'] != 'settled' for e in entries):
+            unresolved = [e for e in entries if e['state'] != 'settled']
+            if unresolved:
+                if isinstance(self.store, GitHubStore):
+                    self.store.trace('reservation_blocked', stage=stage,
+                        blocking_reservations=[{'id': e['id'], 'state': e['state'],
+                                                'run_id': e.get('run_id')} for e in unresolved],
+                        ledger_read=self.store.last_read,
+                        last_acknowledged_write=self.store.last_write)
                 raise BudgetStop('Unresolved API reservation; reconcile before spending again')
             daily = [e for e in entries if e['time'][:10] == now[:10]]
             run = [e for e in entries if e['run_id'] == self.run_id]

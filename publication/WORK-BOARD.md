@@ -23,3 +23,7 @@
 - User approved advisory style handling: distinguish blocking factual/unsupported/archived-duplicate concerns from style suggestions; submit a freshly fact-checked article PR when revisions run out, retaining editorial notes.
 - Require a fresh review between revisions to prevent repeated editing against stale feedback. Decision/call exhaustion can also preserve a current passing draft as an article proposal; unchecked or failed drafts still escalate.
 - Validation: 68 offline tests pass, including style-limit submission, factual/quote blocking and stale-feedback prevention. No paid calls, ledger changes, production merge or deployment. Code review and merge approval pending.
+
+- User requested diagnostics before recovery changes for the Oct 28 ledger stop. Historical cause remains unproven; revision and settlement succeeded, then a reservation check stopped work.
+- Add artifact ledger-diagnostics.jsonl with read/write version SHAs, last acknowledged write, blocking reservations, UTC timestamps, session/run IDs and safe GitHub response metadata. No retry/recovery, spending-limit or ledger-format changes.
+- Validation: 71 offline tests pass, including simulated older-read evidence capture, unchanged reservation stop, request count checks and secret/body exclusion. No paid calls or live ledger writes. Review branch/PR pending user code review and merge approval.
