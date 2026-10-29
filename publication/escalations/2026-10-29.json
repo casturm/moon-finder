@@ -1,0 +1,66 @@
+{
+  "date": "2026-10-29",
+  "status": "needs-human-input",
+  "question": "Budget or call limit stopped editing: Run call limit reached",
+  "topic": {
+    "topic": "Why a lunar month lasts longer than the Moon\u2019s orbit",
+    "angle": "Explain the difference between the Moon\u2019s roughly 27.3-day orbit around Earth and the roughly 29.5 days between matching phases, using the Moon\u2019s and Earth\u2019s simultaneous motion around the Sun to make the distinction intuitive.",
+    "source_urls": [
+      "https://science.nasa.gov/moon/moon-phases/"
+    ]
+  },
+  "feedback": [],
+  "review_issues": [],
+  "decisions": [
+    {
+      "step": 1,
+      "action": "choose_topic",
+      "reason": "A clear, evergreen question supported by NASA\u2019s explanation of orbital and phase cycles; it avoids the archived daytime-Moon and eclipse topics.",
+      "result": "completed"
+    },
+    {
+      "step": 2,
+      "action": "draft",
+      "reason": "NASA\u2019s Moon Phases page supports the 27.3-day orbit, 29.5-day phase cycle, and the role of Earth\u2019s motion around the Sun; the topic is ready to draft.",
+      "result": "completed"
+    },
+    {
+      "step": 3,
+      "action": "check",
+      "reason": "The NASA phases source supports the cycle lengths and phase descriptions; an independent factual review should verify the moving-Earth explanation and whether any claims need tighter wording.",
+      "result": "needs-work",
+      "feedback": [
+        "Fact check failed",
+        "Paragraph 2\u2019s central explanation\u2014that Earth and the Moon travel around the Sun together, shifting the Sun\u2019s direction relative to them and leaving the Moon short of its previous Sun-Earth alignment after one orbit\u2014is not established by the supplied source.",
+        "Paragraph 4 says the Moon must continue around its orbit to \u201ccatch up\u201d with a changing alignment. The supplied source gives the orbital and phase-cycle durations but does not explain the difference through this catch-up mechanism, so that causal assertion is unsupported."
+      ]
+    },
+    {
+      "step": 4,
+      "action": "revise",
+      "reason": "The phase lengths and illumination are supported, but the causal explanation needs evidence. NASA\u2019s already-retrieved Moon Facts page notes Earth\u2019s motion and that the Moon appears to orbit from our perspective every 29 days; use it alongside the phases page and avoid unsupported catch-up wording.",
+      "result": "completed"
+    },
+    {
+      "step": 5,
+      "action": "revise",
+      "reason": "The current draft still lacks a supported explanation of how Earth\u2019s motion relates the two periods. NASA\u2019s retrieved pages support the orbital and phase-cycle lengths and note that Earth\u2019s motion affects the Moon\u2019s apparent cycle.",
+      "result": "needs-work",
+      "feedback": [
+        "Check the current draft before another revision"
+      ]
+    },
+    {
+      "step": 6,
+      "action": "check",
+      "reason": "The prior feedback explicitly requires checking the current draft before any further revision; its factual status is unresolved.",
+      "result": "completed"
+    },
+    {
+      "step": 7,
+      "action": "revise",
+      "reason": "The factual check passed, but the article needs the geometric explanation promised by its title and a tighter ending.",
+      "result": "completed"
+    }
+  ]
+}
