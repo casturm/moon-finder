@@ -50,3 +50,25 @@ After merging the diagnostics fix and reconciling the old reservation, a separat
 A fact-check response exhausted the old output limit. The cap is now 8,000 tokens, covering reasoning plus written output; incomplete responses still fail closed with no automatic retry. A validated draft is saved as draft.json for review if fact checking fails. Cache-write tokens are now costed separately from ordinary input; past ledger estimates are not silently rewritten. Reconcile historical entries only after checking provider billing.
 
 Editor decisions, writer/revision calls and review calls all use the same durable ledger and limits. Defaults now permit 12 calls per day/run to accommodate bounded revision; the USD limits remain $5 total and $0.20 per day/run. Extra research uses only the approved NASA catalog and incurs no model fee itself. Daily tokens remain capped at 400,000, which can stop a run before its call limit. On a budget stop, the editor escalates without making another paid request.
+
+## Investigating ledger read/write ordering
+
+Remote ledger activity appends `ledger-diagnostics.jsonl` to `.publication-run/`, which
+is included in the existing workflow artifact. Each process has a session ID, and events
+include UTC timestamps plus the Actions run ID and attempt. The export process appends
+its own session to the same file rather than discarding generation diagnostics.
+
+`ledger_write_acknowledged` records the previous file SHA, returned file SHA and commit
+SHA. `ledger_read` records the returned file SHA and the last acknowledged write in that
+process. `reservation_blocked` records the blocking reservation IDs/states, the read that
+triggered the stop and the last acknowledged write. HTTP metadata includes the request
+ID, status, response Date and ETag where available; API errors record only the exception
+type and safe metadata. Tokens, authorization headers, response bodies and full ledger
+contents are excluded. A diagnostic-file write failure stops execution rather than
+silently losing evidence.
+
+A different read SHA does not by itself prove an older read: it could be a newer version.
+Compare the captured SHAs against immutable ledger commits and their history. These
+records establish which version was observed, but cannot identify GitHub's internal
+cache/server mechanism. No extra API requests, retries, cache changes, automatic
+reconciliation or recovery are introduced. Real unresolved reservations still stop work.

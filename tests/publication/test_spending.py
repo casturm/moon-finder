@@ -181,3 +181,62 @@ class Spending(unittest.TestCase):
         self.assertEqual(report['calls'][0]['incomplete_details']['reason'],'max_output_tokens')
         self.assertEqual(self.store.read()['entries'][0]['incomplete_details']['reason'],'max_output_tokens')
         self.assertEqual(self.store.read()['entries'][0]['state'],'settled')
+
+class LedgerDiagnostics(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
+        with patch.dict(os.environ, {'GITHUB_REPOSITORY':'test/repo', 'GH_TOKEN':'secret-test-token'}):
+            self.store = GitHubStore()
+        self.store.trace_path = Path(self.temp.name)/'ledger-diagnostics.jsonl'
+
+    def response(self, data):
+        response = io.BytesIO(json.dumps(data).encode())
+        response.status = 200
+        response.headers = {'X-GitHub-Request-Id':'request-123', 'ETag':'etag-123',
+                            'Date':'Thu, 29 Oct 2026 16:00:00 GMT'}
+        return response
+
+    def records(self):
+        return [json.loads(line) for line in self.store.trace_path.read_text().splitlines()]
+
+    def test_write_then_older_read_is_recorded_and_still_blocks_without_retry(self):
+        import base64
+        prior = {'version':1, 'entries':[{'id':'reservation-123', 'run_id':'old-run',
+                                         'state':'reserved'}]}
+        read = {'sha':'old-file', 'content':base64.b64encode(json.dumps(prior).encode()).decode()}
+        write = {'content':{'sha':'new-file'}, 'commit':{'sha':'new-commit'}}
+        responses = [self.response(write), self.response(read)]
+        with patch.object(urllib.request, 'urlopen', side_effect=responses) as http:
+            self.store.api(self.store.route, {'sha':'old-file', 'content':'PRIVATE BODY'}, 'PUT')
+            with self.assertRaisesRegex(ValueError, 'Unresolved API reservation'):
+                Budget(self.store, config(), 'new-run').reserve('gpt-6-luna','editor',100,100)
+        self.assertEqual(http.call_count, 2)  # No retries or additional writes.
+        written, read_event, blocked = self.records()
+        self.assertEqual(written['commit_sha'], 'new-commit')
+        self.assertEqual(read_event['file_sha'], 'old-file')
+        self.assertEqual(read_event['last_acknowledged_write']['file_sha'], 'new-file')
+        self.assertEqual(blocked['ledger_read']['request_id'], 'request-123')
+        self.assertEqual(blocked['blocking_reservations'][0]['id'], 'reservation-123')
+        trace = self.store.trace_path.read_text()
+        self.assertNotIn('secret-test-token', trace)
+        self.assertNotIn('PRIVATE BODY', trace)
+
+    def test_current_read_is_observed_without_extra_requests(self):
+        with patch.object(urllib.request, 'urlopen', return_value=self.response({'sha':'current-file'})) as http:
+            self.store.api(self.store.route+'?ref=moon-journal-ledger')
+        self.assertEqual(http.call_count, 1)
+        record = self.records()[0]
+        self.assertEqual(record['file_sha'], 'current-file')
+        self.assertIsNone(record['last_acknowledged_write'])
+        self.assertEqual(record['etag'], 'etag-123')
+
+    def test_http_error_is_logged_without_body_or_retry(self):
+        error = urllib.error.HTTPError('https://api.github.com/test', 409, 'PRIVATE ERROR',
+                                      {'X-GitHub-Request-Id':'failed-request'}, io.BytesIO(b'PRIVATE BODY'))
+        with patch.object(urllib.request, 'urlopen', side_effect=error) as http:
+            with self.assertRaises(urllib.error.HTTPError): self.store.api(self.store.route)
+        self.assertEqual(http.call_count, 1)
+        record = self.records()[0]
+        self.assertEqual(record['status'], 409)
+        self.assertEqual(record['request_id'], 'failed-request')
+        self.assertNotIn('PRIVATE', self.store.trace_path.read_text())
