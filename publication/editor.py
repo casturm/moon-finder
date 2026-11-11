@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 from publication.spending import BudgetStop
+from publication.draft_preview import render_draft
 
 EDITOR_PROMPT = '''You are the Moon Journal editor. Goal: prepare one worthwhile, original,
 well-supported evergreen lunar article for human editorial approval. You choose the next action,
@@ -134,6 +135,10 @@ class Editor:
             article.update(date=self.day, topic=self.topic['topic'])
             self.draft = article; self.save('draft.json', article)
             self.save(f'draft-{len(self.history):02d}.json', article)
+            # Save readable output before validation so rejected drafts remain inspectable.
+            preview = render_draft(article, self.selected())
+            (self.out / 'draft.html').write_text(preview, encoding='utf-8')
+            (self.out / f'draft-{len(self.history):02d}.html').write_text(preview, encoding='utf-8')
             self.validate(article, self.selected(), self.archive)
             self.feedback = []
         elif action == 'check':

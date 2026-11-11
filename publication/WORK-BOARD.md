@@ -27,3 +27,6 @@
 - User requested diagnostics before recovery changes for the Oct 28 ledger stop. Historical cause remains unproven; revision and settlement succeeded, then a reservation check stopped work.
 - Add artifact ledger-diagnostics.jsonl with read/write version SHAs, last acknowledged write, blocking reservations, UTC timestamps, session/run IDs and safe GitHub response metadata. No retry/recovery, spending-limit or ledger-format changes.
 - Validation: 71 offline tests pass, including simulated older-read evidence capture, unchanged reservation stop, request count checks and secret/body exclusion. No paid calls or live ledger writes. Review branch/PR pending user code review and merge approval.
+
+- User requested readable artifact drafts: save self-contained draft.html and versioned HTML beside writer JSON, before validation. Label all previews unapproved and link only to retrieved HTTPS sources. Clear latest preview at run start.
+- Validation: 74 offline tests pass, including rejected-review preservation, revision replacement/version retention and escaped content/link restrictions. No paid calls or publication changes. Code review and merge approval pending.
