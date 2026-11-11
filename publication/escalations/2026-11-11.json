@@ -1,0 +1,34 @@
+{
+  "date": "2026-11-11",
+  "status": "needs-human-input",
+  "question": "Budget or call limit stopped editing: Unresolved API reservation; reconcile before spending again",
+  "topic": {
+    "topic": "Why a lunar month is longer than the Moon\u2019s orbit",
+    "angle": "Explain why the Moon completes an orbit in about 27.3 days but takes about 29.5 days to return to the same phase: while the Moon orbits Earth, Earth also moves along its orbit around the Sun, so the Moon must travel a little farther to restore the same Sun-Earth-Moon alignment.",
+    "source_urls": [
+      "https://science.nasa.gov/moon/moon-phases/",
+      "https://science.nasa.gov/moon/facts/"
+    ]
+  },
+  "feedback": [],
+  "review_issues": [],
+  "decisions": [
+    {
+      "step": 1,
+      "action": "choose_topic",
+      "reason": "A clear, evergreen explanation supported by the retrieved NASA sources, distinct from the archived eclipse and daytime-visibility articles.",
+      "result": "completed"
+    },
+    {
+      "step": 2,
+      "action": "draft",
+      "reason": "NASA\u2019s retrieved Moon Phases page supports both periods and explains that the longer phase cycle reflects the Moon\u2019s motion relative to the Sun; the topic is ready to draft.",
+      "result": "completed"
+    },
+    {
+      "step": 3,
+      "action": "check",
+      "reason": "The draft\u2019s key periods and explanation are supported by the retrieved NASA sources; an independent factual review is the next step."
+    }
+  ]
+}
