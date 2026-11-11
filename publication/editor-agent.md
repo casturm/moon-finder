@@ -38,3 +38,15 @@ with remaining suggestions in `editorial_notes`. A current passing draft is also
 as an article proposal at the decision/call ceiling or if the editor tries to escalate.
 An unchecked draft or unresolved blocking concern still escalates. Dollar, token, call
 and revision limits are unchanged. No automatic merge or publication is added.
+
+## Reading saved drafts
+
+Download and unzip the proposal run artifact, then open `draft.html` in a browser.
+It contains the latest writer output, readable paragraphs and clickable retrieved-source
+links. `draft-NN.html` preserves individual versions alongside the JSON versions. Each
+HTML file is self-contained and labeled **Unapproved draft**: creation does not mean
+validation or fact checking passed. Consult review.json and escalation.json for outcomes.
+The preview is saved immediately with draft.json, before validation, so later review,
+budget or editor stops do not hide the draft. A rerun removes the latest draft.html
+before starting, just as it removes draft.json. No preview is added to the live journal
+or article PR, and no additional model call is made.

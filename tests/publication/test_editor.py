@@ -85,6 +85,38 @@ class EditorTests(unittest.TestCase):
             limits=dict(config()['editor'], max_decisions=3))
         self.assertEqual(e.run()['editorial_notes'], style['style_suggestions'])
 
+    def test_readable_draft_survives_rejected_review(self):
+        bad = {'passed':False, 'issues':['Unsupported claim'], 'claims':[]}
+        e = self.make([TOPIC, {'action':'draft'}, ARTICLE, {'action':'check'}, bad,
+                      {'action':'escalate', 'question':'Check supporting evidence'}])
+        self.assertIsNone(e.run())
+        preview = (e.out/'draft.html').read_text()
+        self.assertIn('Unapproved draft', preview)
+        self.assertIn(ARTICLE['title'], preview)
+        self.assertIn('href="'+URL+'"', preview)
+        self.assertTrue((e.out/'draft-02.html').exists())
+
+    def test_revision_updates_readable_draft(self):
+        revised = dict(ARTICLE, title='A revised explanation of the lunar orbit')
+        e = self.make([TOPIC, {'action':'draft'}, ARTICLE, {'action':'check'}, REVIEW,
+                      {'action':'revise'}, revised,
+                      {'action':'escalate','question':'Needs a fresh check'}])
+        self.assertIsNone(e.run())
+        self.assertIn(revised['title'], (e.out/'draft.html').read_text())
+        self.assertIn(ARTICLE['title'], (e.out/'draft-02.html').read_text())
+
+    def test_preview_escapes_content_and_restricts_links_before_validation(self):
+        from publication.draft_preview import render_draft
+        malformed = {'title':'<script>bad()</script>', 'paragraphs':[
+            {'text':'<img src=x onerror=bad()>', 'sources':['javascript:bad()', URL]},
+            None]}
+        preview = render_draft(malformed, [SOURCE])
+        self.assertNotIn('<script>', preview)
+        self.assertNotIn('<img', preview)
+        self.assertNotIn('javascript:', preview)
+        self.assertIn('&lt;script&gt;', preview)
+        self.assertIn('href="'+URL+'"', preview)
+
     def test_cannot_submit_unchecked_draft(self):
         e=self.make([TOPIC,{'action':'draft'},ARTICLE,{'action':'submit'},
             {'action':'escalate','question':'Need an independent check.'}])

@@ -213,7 +213,7 @@ def run(day, out):
     out.mkdir(parents=True, exist_ok=True)
     dt.date.fromisoformat(day)
     # Never let a previous successful draft survive a failed rerun.
-    for name in ('article.json', 'draft.json', 'review.json', 'evidence.json', 'escalation.json', 'editor.json'):
+    for name in ('article.json', 'draft.json', 'draft.html', 'review.json', 'evidence.json', 'escalation.json', 'editor.json'):
         (out / name).unlink(missing_ok=True)
     report = {'date': day, 'status': 'started', 'calls': [], 'sources': []}
     try:
