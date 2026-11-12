@@ -41,12 +41,13 @@ jobs:
           PENDING=$(gh pr list --limit 1000 --state open --json headRefName --jq '[.[] | select(.headRefName | startswith("codex/moon-journal-"))] | length')
           if test "$PENDING" -gt 0; then
             echo 'exists=true' >> "$GITHUB_OUTPUT"
-            echo 'An article is awaiting review; skipping paid generation.'
+            echo 'Status: skipped — an article is awaiting review; no paid generation.' | tee -a "${GITHUB_STEP_SUMMARY:-/dev/null}"
           fi
           FOUND=$(gh api --paginate "repos/$GITHUB_REPOSITORY/branches?per_page=100" --jq ".[ ] | select(.name == \"$BRANCH\") | .name")
           if test -n "$FOUND"; then
             echo 'exists=true' >> "$GITHUB_OUTPUT"
             echo 'recover=true' >> "$GITHUB_OUTPUT"
+            echo 'Status: recovering existing daily branch; no paid generation.' >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
           fi
       - name: Generate reviewed proposal
         if: steps.daily.outputs.exists != 'true'
@@ -57,6 +58,9 @@ jobs:
       - name: Export durable ledger and dashboard
         if: always()
         run: python publication/spending.py export
+      - name: Persist proposal audit
+        if: always()
+        run: python publication/audit.py
       - name: Save evidence and usage
         if: always()
         uses: actions/upload-artifact@v4
@@ -69,8 +73,8 @@ jobs:
       - name: Summarize outcome
         if: always()
         run: |
-          if test -f .publication-run/run.json; then
-            cat .publication-run/run.json >> "$GITHUB_STEP_SUMMARY"
+          if test -f .publication-run/summary.md; then
+            cat .publication-run/summary.md >> "$GITHUB_STEP_SUMMARY"
           fi
           if test -f .publication-run/spending-summary.md; then
             cat .publication-run/spending-summary.md >> "$GITHUB_STEP_SUMMARY"
@@ -90,7 +94,7 @@ jobs:
               mkdir -p publication/articles
               cp .publication-run/article.json "publication/articles/$DAY.json"
               python publication/pipeline.py --build
-              git add publication/articles journal
+              git add publication/articles publication/title-index.json journal
             else
               mkdir -p publication/escalations
               cp .publication-run/escalation.json "publication/escalations/$DAY.json"

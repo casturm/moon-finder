@@ -21,4 +21,4 @@ jobs:
       - name: Check committed pages match article data
         run: |
           python publication/pipeline.py --build
-          git diff --exit-code -- journal
+          git diff --exit-code -- journal publication/title-index.json
