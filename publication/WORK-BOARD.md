@@ -54,3 +54,4 @@
 - Code review, test-report approval, integration and deployment approval remain pending.
 - Validation artifact: `publication/topic-index-review.md`; 94 offline publication tests
   pass, journal rebuild unchanged, workflow shell syntax and whitespace checks pass.
+- Review artifact: draft [PR #18](https://github.com/casturm/moon-finder/pull/18). No approvals recorded.

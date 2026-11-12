@@ -3,6 +3,7 @@
 Persistent idea list for proposal-pipeline improvements. Add ideas here before implementation;
 check existing entries to avoid duplicate work. Record the review artifact when an item ships.
 Code preparation does not imply approval to merge or deploy.
+Current implementation: draft [PR #18](https://github.com/casturm/moon-finder/pull/18).
 
 | Feature | State | Scope / acceptance |
 | --- | --- | --- |
