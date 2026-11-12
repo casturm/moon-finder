@@ -147,7 +147,11 @@ class EditorTests(unittest.TestCase):
     def test_budget_stop_creates_escalation_without_extra_calls(self):
         e=self.make([TOPIC],stop=1)
         self.assertIsNone(e.run());self.assertEqual(len(e.model.inputs),1)
-        self.assertIn('Budget',json.loads((e.out/'escalation.json').read_text())['question'])
+        escalation = json.loads((e.out/'escalation.json').read_text())
+        self.assertIn('Spending safety control', escalation['question'])
+        self.assertEqual(escalation['stop']['code'], 'budget-limit')
+        self.assertFalse(escalation['article_proposed'])
+        self.assertFalse(escalation['factual_review_complete'])
     def test_editor_can_escalate_directly(self):
         e=self.make([{'action':'escalate','question':'Which audience should this serve?'}])
         self.assertIsNone(e.run());self.assertEqual(len(e.model.inputs),1)

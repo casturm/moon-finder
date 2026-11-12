@@ -81,12 +81,19 @@ class Editor:
                 'remaining_budget': self.model.budget_snapshot() if hasattr(self.model, 'budget_snapshot') else {},
                 'draft_check_current': bool(self.checked and self.checked == self.signature())}
 
-    def escalate(self, question):
+    def escalate(self, question, stop=None):
         self.save('editor.json', self.history)
         self.save('escalation.json', {'date': self.day, 'status': 'needs-human-input',
             'question': str(question)[:2000], 'topic': self.topic, 'feedback': self.feedback,
             'review_issues': self.review.get('issues', []) if isinstance(self.review, dict) else [],
-            'decisions': self.history})
+            'decisions': self.history,
+            'article_proposed': False, 'draft_available': self.draft is not None,
+            'factual_review_complete': bool(self.checked and self.checked == self.signature()),
+            'stop': stop,
+            'next_action': ('Inspect run.json, ledger-diagnostics.jsonl and current usage.json. '
+                'Do not publish the draft. Reconcile only a genuinely held request with verified usage; '
+                'a stale ledger read requires history verification, not a billing adjustment.') if stop else
+                'Resolve the editorial question before a new proposal run.'})
         return None
 
     def execute(self, decision):
@@ -203,7 +210,7 @@ class Editor:
                 self.save('editor.json', self.history)
             except BudgetStop as error:
                 if self.checked == self.signature(): return self.submission()
-                return self.escalate('Budget or call limit stopped editing: ' + str(error))
+                return self.escalate('Spending safety control stopped editing: ' + str(error), error.details)
             except (ValueError, KeyError, TypeError) as error:
                 calls = self.model.report['calls']
                 if calls and calls[-1].get('state') == 'reserved': raise

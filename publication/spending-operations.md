@@ -72,3 +72,43 @@ Compare the captured SHAs against immutable ledger commits and their history. Th
 records establish which version was observed, but cannot identify GitHub's internal
 cache/server mechanism. No extra API requests, retries, cache changes, automatic
 reconciliation or recovery are introduced. Real unresolved reservations still stop work.
+
+## Known stale ledger reads
+
+A `ledger-consistency` stop means this process read a file SHA it had already
+superseded with an acknowledged write. It makes no further paid request and does
+not reconcile or retry automatically. A different, previously unseen SHA is not
+assumed stale: it may represent a concurrent newer write, and SHA write checks
+still apply. This guard detects known regressions within one process, not every
+possible stale read across runs. Compare diagnostics with immutable ledger commits
+and the current ledger before deciding whether to reconcile or start a fresh run.
+
+### Run 30 investigation (2026-11-11)
+
+Run 43103200640 stopped before factual review. Its four response IDs and usage in
+run.json exactly match four settled entries in usage.json at ledger commit
+15851e96d1e7c9e592b687b8c528443d6962f995; no unresolved entries remain.
+The four estimated charges total $0.00845045. No accounting mutation was needed.
+
+At 21:28:10.592 UTC the process acknowledged settlement of reservation
+db138798-7763-4e6e-958d-1adac22b85cd in that commit, blob
+7a4b54bbe0f9bbe98b766e1ea0f028f505cc421d. The next two reads returned blob
+cc30dd738c202935e0c9cffc0f49dc733856e5c0 from its parent commit
+aebf5441bf132caad4540f0a18da922328899653, where the reservation was still held.
+The separate export process then read the settled blob. This proves a stale
+branch-content read; it does not identify GitHub's internal caching mechanism.
+The artifact ZIP SHA-256 is
+517b5a16589cfe609e408729ab49ac348148e259dfd337bff70f4229dedced35.
+
+PR #15 is an escalation record, not a publishable article. After reviewing this
+fix, close #15 without merging. Merge the fix only after explicit code/integration
+approval. Do not rerun old run #30, which uses old workflow code. A fresh manual
+daily-proposal run from updated main can be requested after approval; the same-day
+branch guard may skip 2026-11-11 because its branch already exists, so prefer the
+next date rather than deleting evidence. A spending-report export is read-only
+and can confirm there are no holds; do not run reconcile for this incident.
+The draft in run #30 still needs factual review before any publication approval.
+
+Validation: 75 publication tests passed, including stale-read classification,
+no retries/writes after the stop, acceptance of an unseen newer SHA, genuine hold
+blocking, and structured escalation output. Page rebuild made no journal changes.

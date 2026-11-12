@@ -199,7 +199,7 @@ class LedgerDiagnostics(unittest.TestCase):
     def records(self):
         return [json.loads(line) for line in self.store.trace_path.read_text().splitlines()]
 
-    def test_write_then_older_read_is_recorded_and_still_blocks_without_retry(self):
+    def test_write_then_superseded_read_blocks_as_consistency_error_without_retry(self):
         import base64
         prior = {'version':1, 'entries':[{'id':'reservation-123', 'run_id':'old-run',
                                          'state':'reserved'}]}
@@ -208,7 +208,7 @@ class LedgerDiagnostics(unittest.TestCase):
         responses = [self.response(write), self.response(read)]
         with patch.object(urllib.request, 'urlopen', side_effect=responses) as http:
             self.store.api(self.store.route, {'sha':'old-file', 'content':'PRIVATE BODY'}, 'PUT')
-            with self.assertRaisesRegex(ValueError, 'Unresolved API reservation'):
+            with self.assertRaisesRegex(ValueError, 'version superseded'):
                 Budget(self.store, config(), 'new-run').reserve('gpt-6-luna','editor',100,100)
         self.assertEqual(http.call_count, 2)  # No retries or additional writes.
         written, read_event, blocked = self.records()
@@ -216,10 +216,19 @@ class LedgerDiagnostics(unittest.TestCase):
         self.assertEqual(read_event['file_sha'], 'old-file')
         self.assertEqual(read_event['last_acknowledged_write']['file_sha'], 'new-file')
         self.assertEqual(blocked['ledger_read']['request_id'], 'request-123')
-        self.assertEqual(blocked['blocking_reservations'][0]['id'], 'reservation-123')
+        self.assertEqual(blocked['event'], 'ledger_consistency_blocked')
         trace = self.store.trace_path.read_text()
         self.assertNotIn('secret-test-token', trace)
         self.assertNotIn('PRIVATE BODY', trace)
+
+    def test_unseen_newer_version_is_not_assumed_stale(self):
+        import base64
+        self.store.superseded_shas.add('old-file')
+        data = {'version': 1, 'entries': []}
+        response = {'sha': 'concurrent-new-file',
+                    'content': base64.b64encode(json.dumps(data).encode()).decode()}
+        with patch.object(urllib.request, 'urlopen', return_value=self.response(response)):
+            self.assertEqual(self.store.read(), data)
 
     def test_current_read_is_observed_without_extra_requests(self):
         with patch.object(urllib.request, 'urlopen', return_value=self.response({'sha':'current-file'})) as http:
