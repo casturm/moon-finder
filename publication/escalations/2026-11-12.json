@@ -1,0 +1,72 @@
+{
+  "date": "2026-11-12",
+  "status": "needs-human-input",
+  "question": "Spending safety control stopped editing: Run call limit reached",
+  "topic": {
+    "topic": "Why the Moon\u2019s far side isn\u2019t its \u201cdark side\u201d",
+    "angle": "Explain how tidal locking keeps the same hemisphere facing Earth while the Moon\u2019s rotation and orbit still carry both hemispheres through sunlight and darkness; distinguish the far side from the changing lunar night.",
+    "source_urls": [
+      "https://science.nasa.gov/moon/facts/",
+      "https://science.nasa.gov/moon/moon-phases/"
+    ]
+  },
+  "feedback": [],
+  "review_issues": [],
+  "decisions": [
+    {
+      "step": 1,
+      "action": "choose_topic",
+      "reason": "NASA\u2019s sources directly support the distinction and clarify both synchronous rotation and changing illumination; the angle is evergreen and distinct from the archive topics.",
+      "result": "completed"
+    },
+    {
+      "step": 2,
+      "action": "draft",
+      "reason": "The NASA sources directly support the distinction between the far side and the Moon\u2019s changing day and night; ask for an evergreen, sourced explanation using the selected angle.",
+      "result": "completed"
+    },
+    {
+      "step": 3,
+      "action": "check",
+      "reason": "The draft is supported by the retrieved NASA sources; request an independent factual check before submission.",
+      "result": "needs-work",
+      "feedback": [
+        "Fact checker evidence quote not found"
+      ]
+    },
+    {
+      "step": 4,
+      "action": "revise",
+      "reason": "The reviewer passed the facts but reported an evidence-quote mismatch; tighten the repeated explanation and keep the article focused on far side versus lunar night.",
+      "result": "completed"
+    },
+    {
+      "step": 5,
+      "action": "check",
+      "reason": "The draft was revised after the evidence-quote mismatch; request a fresh factual check of the latest version before submission.",
+      "result": "needs-work",
+      "feedback": [
+        "Fact check failed",
+        "The third paragraph substantially duplicates the archived article \u201cWhy a Lunar Month Is Longer Than the Moon\u2019s Orbit\u201d: both explain the 27.3-day orbit/rotation period, the roughly 29.5-day new-Moon-to-new-Moon phase cycle, and that these are different cycles. The overlap is especially concentrated in the paragraph\u2019s final sentence and the preceding cycle-length statement."
+      ]
+    },
+    {
+      "step": 6,
+      "action": "revise",
+      "reason": "The latest check found substantial overlap with an archived article; remove the phase-cycle comparison and refocus the ending on far-side illumination.",
+      "result": "completed"
+    },
+    {
+      "step": 7,
+      "action": "check",
+      "reason": "The latest revision removed the phase-cycle comparison flagged for overlap; request a fresh factual check before submission."
+    }
+  ],
+  "article_proposed": false,
+  "draft_available": true,
+  "factual_review_complete": false,
+  "stop": {
+    "code": "budget-limit"
+  },
+  "next_action": "Review the configured spending, token and call limits before a new attempt. The saved draft is not approved for publication by this run."
+}
