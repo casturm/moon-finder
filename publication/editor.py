@@ -81,12 +81,24 @@ class Editor:
                 'remaining_budget': self.model.budget_snapshot() if hasattr(self.model, 'budget_snapshot') else {},
                 'draft_check_current': bool(self.checked and self.checked == self.signature())}
 
-    def escalate(self, question):
+    def escalate(self, question, stop=None):
         self.save('editor.json', self.history)
+        recovery = {
+            'ledger-consistency': 'Compare ledger-diagnostics.jsonl with current usage.json and immutable '
+                'ledger commits before rerunning. Do not reconcile solely because of a stale read.',
+            'unresolved-reservation': 'Verify the blocking reservation against current usage.json and '
+                'request usage. Reconcile only a genuinely held request with verified evidence.',
+            'budget-limit': 'Review the configured spending, token and call limits before a new attempt.'}
+        next_action = recovery.get((stop or {}).get('code'),
+            'Resolve the editorial question before a new proposal run.')
         self.save('escalation.json', {'date': self.day, 'status': 'needs-human-input',
             'question': str(question)[:2000], 'topic': self.topic, 'feedback': self.feedback,
             'review_issues': self.review.get('issues', []) if isinstance(self.review, dict) else [],
-            'decisions': self.history})
+            'decisions': self.history,
+            'article_proposed': False, 'draft_available': self.draft is not None,
+            'factual_review_complete': bool(self.checked and self.checked == self.signature()),
+            'stop': stop,
+            'next_action': next_action + ' The saved draft is not approved for publication by this run.'})
         return None
 
     def execute(self, decision):
@@ -203,7 +215,7 @@ class Editor:
                 self.save('editor.json', self.history)
             except BudgetStop as error:
                 if self.checked == self.signature(): return self.submission()
-                return self.escalate('Budget or call limit stopped editing: ' + str(error))
+                return self.escalate('Spending safety control stopped editing: ' + str(error), error.details)
             except (ValueError, KeyError, TypeError) as error:
                 calls = self.model.report['calls']
                 if calls and calls[-1].get('state') == 'reserved': raise

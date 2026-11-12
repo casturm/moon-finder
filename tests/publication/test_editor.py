@@ -147,7 +147,25 @@ class EditorTests(unittest.TestCase):
     def test_budget_stop_creates_escalation_without_extra_calls(self):
         e=self.make([TOPIC],stop=1)
         self.assertIsNone(e.run());self.assertEqual(len(e.model.inputs),1)
-        self.assertIn('Budget',json.loads((e.out/'escalation.json').read_text())['question'])
+        escalation = json.loads((e.out/'escalation.json').read_text())
+        self.assertIn('Spending safety control', escalation['question'])
+        self.assertEqual(escalation['stop']['code'], 'budget-limit')
+        self.assertFalse(escalation['article_proposed'])
+        self.assertFalse(escalation['factual_review_complete'])
+    def test_stale_read_escalation_keeps_evidence_and_specific_recovery(self):
+        from unittest.mock import patch
+        e = self.make([])
+        error = BudgetStop('Known superseded version', code='ledger-consistency',
+                           observed_file_sha='old-file', acknowledged_write={'file_sha': 'new-file'})
+        with patch.object(e.model, 'ask', side_effect=error) as ask:
+            self.assertIsNone(e.run())
+        self.assertEqual(ask.call_count, 1)
+        result = json.loads((e.out/'escalation.json').read_text())
+        self.assertEqual(result['stop']['observed_file_sha'], 'old-file')
+        self.assertEqual(result['stop']['acknowledged_write']['file_sha'], 'new-file')
+        self.assertIn('Do not reconcile solely', result['next_action'])
+        self.assertFalse(result['article_proposed'])
+
     def test_editor_can_escalate_directly(self):
         e=self.make([{'action':'escalate','question':'Which audience should this serve?'}])
         self.assertIsNone(e.run());self.assertEqual(len(e.model.inputs),1)

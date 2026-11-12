@@ -30,3 +30,14 @@
 
 - User requested readable artifact drafts: save self-contained draft.html and versioned HTML beside writer JSON, before validation. Label all previews unapproved and link only to retrieved HTTPS sources. Clear latest preview at run start.
 - Validation: 74 offline tests pass, including rejected-review preservation, revision replacement/version retention and escaped content/link restrictions. No paid calls or publication changes. Code review and merge approval pending.
+
+## Run 30 reservation escalation investigation
+
+- Evidence verified: stale read after acknowledged settlement; all four calls settled,
+  zero unresolved reservations. No reconciliation performed.
+- Review branch: codex/reservation-escalation. Adds fail-closed detection of known
+  superseded ledger versions and explicit escalation status/recovery fields.
+- Validation: 77 publication tests pass; page rebuild unchanged; diff whitespace check passes.
+- PR #15 was closed; its unchanged draft was source-reviewed and published through
+  approved PR #16. The clarity fix is separate: code, integration and deployment
+  approval remain pending. No paid rerun or accounting mutation was needed.

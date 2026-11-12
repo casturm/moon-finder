@@ -11,6 +11,9 @@ import uuid
 
 class BudgetStop(ValueError):
     """A pre-call control blocked spending; do not retry automatically."""
+    def __init__(self, message, code='budget-limit', **details):
+        super().__init__(message)
+        self.details = {'code': code, **details}
 
 
 CONFIG = Path(__file__).with_name('spending.json')
@@ -82,6 +85,7 @@ class GitHubStore:
         self.trace_path = Path('.publication-run/ledger-diagnostics.jsonl')
         self.session_id = str(uuid.uuid4())
         self.last_write = self.last_read = None
+        self.superseded_shas = set()
 
     def trace(self, event, **fields):
         # Allowlisted metadata only: never log tokens, headers wholesale, or ledger contents.
@@ -117,6 +121,9 @@ class GitHubStore:
                 self.last_read = {'file_sha': data.get('sha'), **metadata}
                 self.trace('ledger_read', **self.last_read, last_acknowledged_write=self.last_write)
             else:
+                if ((body or {}).get('sha') and
+                        body['sha'] != (data.get('content') or {}).get('sha')):
+                    self.superseded_shas.add(body['sha'])
                 self.last_write = {'file_sha': (data.get('content') or {}).get('sha'),
                     'commit_sha': (data.get('commit') or {}).get('sha'), **metadata}
                 self.trace('ledger_write_acknowledged', **self.last_write,
@@ -126,6 +133,14 @@ class GitHubStore:
         return data
     def read_file(self):
         obj = self.api(self.route + '?ref=' + BRANCH)
+        if obj['sha'] in self.superseded_shas:
+            self.trace('ledger_consistency_blocked', ledger_read=self.last_read,
+                       last_acknowledged_write=self.last_write)
+            raise BudgetStop(
+                'Ledger returned a version superseded by an acknowledged write; '
+                'verify current ledger history before rerunning. Do not reconcile from this stale read.',
+                code='ledger-consistency', observed_file_sha=obj['sha'],
+                acknowledged_write=self.last_write)
         return json.loads(base64.b64decode(obj['content'])), obj['sha']
     def read(self): return self.read_file()[0]
     def change(self, action):
@@ -169,7 +184,9 @@ class Budget:
                                                 'run_id': e.get('run_id')} for e in unresolved],
                         ledger_read=self.store.last_read,
                         last_acknowledged_write=self.store.last_write)
-                raise BudgetStop('Unresolved API reservation; reconcile before spending again')
+                raise BudgetStop('Unresolved API reservation; verify current ledger and request usage before reconciliation',
+                    code='unresolved-reservation', blocking_reservations=[
+                        {k: e.get(k) for k in ('id', 'run_id', 'stage', 'state')} for e in unresolved])
             daily = [e for e in entries if e['time'][:10] == now[:10]]
             run = [e for e in entries if e['run_id'] == self.run_id]
             for scope, items in (('total', entries), ('daily', daily), ('run', run)):
