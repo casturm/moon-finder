@@ -221,6 +221,16 @@ class LedgerDiagnostics(unittest.TestCase):
         self.assertNotIn('secret-test-token', trace)
         self.assertNotIn('PRIVATE BODY', trace)
 
+    def test_noop_write_does_not_mark_current_content_stale(self):
+        import base64
+        data = {'version': 1, 'entries': []}
+        write = {'content': {'sha': 'same-file'}, 'commit': {'sha': 'new-commit'}}
+        read = {'sha': 'same-file',
+                'content': base64.b64encode(json.dumps(data).encode()).decode()}
+        with patch.object(urllib.request, 'urlopen', side_effect=[self.response(write), self.response(read)]):
+            self.store.api(self.store.route, {'sha': 'same-file'}, 'PUT')
+            self.assertEqual(self.store.read(), data)
+
     def test_unseen_newer_version_is_not_assumed_stale(self):
         import base64
         self.store.superseded_shas.add('old-file')

@@ -121,7 +121,8 @@ class GitHubStore:
                 self.last_read = {'file_sha': data.get('sha'), **metadata}
                 self.trace('ledger_read', **self.last_read, last_acknowledged_write=self.last_write)
             else:
-                if (body or {}).get('sha'):
+                if ((body or {}).get('sha') and
+                        body['sha'] != (data.get('content') or {}).get('sha')):
                     self.superseded_shas.add(body['sha'])
                 self.last_write = {'file_sha': (data.get('content') or {}).get('sha'),
                     'commit_sha': (data.get('commit') or {}).get('sha'), **metadata}

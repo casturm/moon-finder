@@ -37,7 +37,7 @@
   zero unresolved reservations. No reconciliation performed.
 - Review branch: codex/reservation-escalation. Adds fail-closed detection of known
   superseded ledger versions and explicit escalation status/recovery fields.
-- Validation: 75 publication tests pass; page rebuild unchanged; diff whitespace check passes.
-- Code, integration and deployment approval pending. PR #15 should be closed without
-  merging after investigation review. Fresh proposal run requires approval; no paid
-  rerun, merge or publication performed during investigation.
+- Validation: 77 publication tests pass; page rebuild unchanged; diff whitespace check passes.
+- PR #15 was closed; its unchanged draft was source-reviewed and published through
+  approved PR #16. The clarity fix is separate: code, integration and deployment
+  approval remain pending. No paid rerun or accounting mutation was needed.

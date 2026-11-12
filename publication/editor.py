@@ -83,6 +83,14 @@ class Editor:
 
     def escalate(self, question, stop=None):
         self.save('editor.json', self.history)
+        recovery = {
+            'ledger-consistency': 'Compare ledger-diagnostics.jsonl with current usage.json and immutable '
+                'ledger commits before rerunning. Do not reconcile solely because of a stale read.',
+            'unresolved-reservation': 'Verify the blocking reservation against current usage.json and '
+                'request usage. Reconcile only a genuinely held request with verified evidence.',
+            'budget-limit': 'Review the configured spending, token and call limits before a new attempt.'}
+        next_action = recovery.get((stop or {}).get('code'),
+            'Resolve the editorial question before a new proposal run.')
         self.save('escalation.json', {'date': self.day, 'status': 'needs-human-input',
             'question': str(question)[:2000], 'topic': self.topic, 'feedback': self.feedback,
             'review_issues': self.review.get('issues', []) if isinstance(self.review, dict) else [],
@@ -90,10 +98,7 @@ class Editor:
             'article_proposed': False, 'draft_available': self.draft is not None,
             'factual_review_complete': bool(self.checked and self.checked == self.signature()),
             'stop': stop,
-            'next_action': ('Inspect run.json, ledger-diagnostics.jsonl and current usage.json. '
-                'Do not publish the draft. Reconcile only a genuinely held request with verified usage; '
-                'a stale ledger read requires history verification, not a billing adjustment.') if stop else
-                'Resolve the editorial question before a new proposal run.'})
+            'next_action': next_action + ' The saved draft is not approved for publication by this run.'})
         return None
 
     def execute(self, decision):

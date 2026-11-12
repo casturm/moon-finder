@@ -109,6 +109,10 @@ next date rather than deleting evidence. A spending-report export is read-only
 and can confirm there are no holds; do not run reconcile for this incident.
 The draft in run #30 still needs factual review before any publication approval.
 
-Validation: 75 publication tests passed, including stale-read classification,
+Validation: 77 publication tests passed, including stale-read classification,
 no retries/writes after the stop, acceptance of an unseen newer SHA, genuine hold
 blocking, and structured escalation output. Page rebuild made no journal changes.
+
+Recovery completed: PR #15 was closed and the unchanged draft was source-reviewed
+and published through user-approved PR #16. No new proposal run is needed for
+that article. The stale-read clarity change remains a separate review.
