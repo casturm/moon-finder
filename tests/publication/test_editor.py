@@ -235,4 +235,4 @@ class EscalationWorkflowTests(unittest.TestCase):
         self.assertEqual(settings['limits']['total_usd'],'5.00')
         self.assertEqual(settings['limits']['daily_usd'],'0.20')
         self.assertEqual(settings['limits']['run_usd'],'0.20')
-        self.assertEqual(settings['editor']['max_decisions'],8)
+        self.assertEqual(settings['editor']['max_decisions'],12)
