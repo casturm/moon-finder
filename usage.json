@@ -2626,6 +2626,25 @@
       "response_model": "gpt-6-luna",
       "response_status": "completed",
       "incomplete_details": null
+    },
+    {
+      "id": "df1f8522-f669-4208-8f4c-4ff70473b872",
+      "run_id": "43630979875-1",
+      "time": "2026-11-14T19:14:57.994868+00:00",
+      "stage": "You are the Moon Journal editor",
+      "model": "gpt-6-luna",
+      "rates": {
+        "input": "0.10",
+        "cached_input": "0.01",
+        "output": "0.50",
+        "reservation_input": "0.125",
+        "cache_write": "0.125"
+      },
+      "pricing_checked": "2026-10-18",
+      "input_bound": 84807,
+      "output_bound": 8000,
+      "reserved_usd": "0.014600875",
+      "state": "reserved"
     }
   ]
 }
