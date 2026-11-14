@@ -41,3 +41,17 @@
 - PR #15 was closed; its unchanged draft was source-reviewed and published through
   approved PR #16. The clarity fix is separate: code, integration and deployment
   approval remain pending. No paid rerun or accounting mutation was needed.
+
+## Feature TODO and proposal duplicate audit
+
+- User requested a persistent feature list, existing-title index, proposal-stage duplicate
+  gate and inspectable rejection history. Implementation branch: `codex/proposal-topic-index`.
+- Prepared `FEATURE-TODO.md`, generated title index and deterministic early checks;
+  retained draft gates. Reject events identify reason, matched article, step and run ID.
+- Proposed durable run bundles on `moon-journal-audit`, plus artifact snapshots and
+  run/skip summaries. Audit branch is separate from production; no paid calls or live
+  audit writes performed during implementation.
+- Code review, test-report approval, integration and deployment approval remain pending.
+- Validation artifact: `publication/topic-index-review.md`; 94 offline publication tests
+  pass, journal rebuild unchanged, workflow shell syntax and whitespace checks pass.
+- Review artifact: draft [PR #18](https://github.com/casturm/moon-finder/pull/18). No approvals recorded.

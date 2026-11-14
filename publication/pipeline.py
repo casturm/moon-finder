@@ -1,7 +1,6 @@
 """Bounded, review-first lunar publication. Python standard library only."""
 import argparse
 import datetime as dt
-import difflib
 import hashlib
 import html
 from html.parser import HTMLParser
@@ -19,6 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from publication.spending import Budget, BudgetStop, charged, money, config, store_from_env
 from publication.editor import Editor
+from publication.topics import DuplicateTopic, title_index, match_title
 SOURCES = [
     'https://science.nasa.gov/moon/facts/',
     'https://science.nasa.gov/moon/moon-phases/',
@@ -86,12 +86,14 @@ def validate(article, sources, archive):
         if not isinstance(p['sources'], list) or not p['sources'] or not set(p['sources']) <= allowed:
             raise ValueError('Every paragraph requires retrieved citations')
     if not 250 <= words <= 650: raise ValueError('Article must have 250–650 words')
+    match = match_title(article['title'], title_index(archive), article['slug'])
+    if match:
+        raise DuplicateTopic(match)
     for old in archive:
-        if (article['slug'] == old['slug'] or similar(article['title'], old['title']) > .6
-            or difflib.SequenceMatcher(None, article['title'].lower(), old['title'].lower()).ratio() > .85
-            or similar(' '.join(p['text'] for p in article['paragraphs']),
-                       ' '.join(p['text'] for p in old['paragraphs'])) > .72):
-            raise ValueError('Possible duplicate; human review required')
+        if similar(' '.join(p['text'] for p in article['paragraphs']),
+                   ' '.join(p['text'] for p in old['paragraphs'])) > .72:
+            raise DuplicateTopic({'reason': 'body-word-overlap',
+                                  'matched_article': title_index([old])[0]})
 
 
 class Model:
@@ -99,7 +101,7 @@ class Model:
         self.report = report
         self.settings = config()
         self.budget = Budget(store_from_env(), self.settings,
-            os.environ.get('GITHUB_RUN_ID', str(uuid.uuid4())) + '-' + os.environ.get('GITHUB_RUN_ATTEMPT', '1'))
+            report.get('run_id') or (os.environ.get('GITHUB_RUN_ID', str(uuid.uuid4())) + '-' + os.environ.get('GITHUB_RUN_ATTEMPT', '1')))
     def budget_snapshot(self):
         entries = self.budget.store.read()['entries']
         today = dt.datetime.now(dt.timezone.utc).date().isoformat()
@@ -213,11 +215,15 @@ def run(day, out):
     out.mkdir(parents=True, exist_ok=True)
     dt.date.fromisoformat(day)
     # Never let a previous successful draft survive a failed rerun.
-    for name in ('article.json', 'draft.json', 'draft.html', 'review.json', 'evidence.json', 'escalation.json', 'editor.json'):
+    for name in ('article.json', 'draft.json', 'draft.html', 'review.json', 'evidence.json', 'escalation.json', 'editor.json', 'rejections.jsonl', 'title-index.json'):
         (out / name).unlink(missing_ok=True)
-    report = {'date': day, 'status': 'started', 'calls': [], 'sources': []}
+    report = {'date': day, 'run_id': os.environ.get('GITHUB_RUN_ID', str(uuid.uuid4())) + '-' + os.environ.get('GITHUB_RUN_ATTEMPT', '1'),
+              'status': 'started', 'calls': [], 'sources': [], 'duplicate_rejections': 0}
+    (out / 'rejections.jsonl').write_text('')
     try:
         archive = [json.loads(p.read_text()) for p in (ROOT / 'publication/articles').glob('*.json')]
+        (out / 'title-index.json').write_text(json.dumps(title_index(archive), indent=2) + '\n')
+        report['indexed_articles'] = len(archive)
         if any(a['date'] == day for a in archive):
             report['status'] = 'already-published'; return
         if len(archive) >= 30: raise ValueError('30-article experiment complete; review before extending')
@@ -250,7 +256,13 @@ def run(day, out):
         report['status'] = 'failed'; report['error'] = type(e).__name__ + ': ' + str(e)[:250]
         raise
     finally:
+        report['duplicate_rejections'] = len((out / 'rejections.jsonl').read_text().splitlines())
         (out / 'run.json').write_text(json.dumps(report, indent=2) + '\n')
+        summary = (f"Moon Journal run `{report['run_id']}`: **{report['status']}**\n\n"
+                   f"Indexed articles: {report.get('indexed_articles', 0)}. "
+                   f"Duplicate rejections: {report['duplicate_rejections']}.\n")
+        (out / 'summary.md').write_text(summary)
+        print(summary)
 
 
 if __name__ == '__main__':
@@ -258,5 +270,7 @@ if __name__ == '__main__':
     parser.add_argument('--out', type=Path, default=ROOT / '.publication-run'); parser.add_argument('--build', action='store_true')
     args = parser.parse_args(); dt.date.fromisoformat(args.date)
     if args.build:
-        render([json.loads(p.read_text()) for p in (ROOT / 'publication/articles').glob('*.json')], ROOT / 'journal')
+        archive = [json.loads(p.read_text()) for p in (ROOT / 'publication/articles').glob('*.json')]
+        render(archive, ROOT / 'journal')
+        (ROOT / 'publication/title-index.json').write_text(json.dumps(title_index(archive), indent=2) + '\n')
     else: run(args.date, args.out)

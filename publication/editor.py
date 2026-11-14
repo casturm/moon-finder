@@ -1,9 +1,12 @@
 """A bounded editor chooses tools; deterministic checks control submission."""
+import datetime as dt
+import uuid
 import hashlib
 import json
 from pathlib import Path
 
 from publication.spending import BudgetStop
+from publication.topics import DuplicateTopic, title_index, match_title
 from publication.draft_preview import render_draft
 
 EDITOR_PROMPT = '''You are the Moon Journal editor. Goal: prepare one worthwhile, original,
@@ -17,6 +20,8 @@ Return one JSON object with action and reason, plus the action's fields:
 - check: ask the independent reviewer to check the current draft.
 - submit: after a successful factual check of the latest draft. Style suggestions are advisory.
 - escalate: question explaining precisely what requires human judgment.
+Use the existing_title_index to avoid covered topics. A duplicate rejection is feedback: choose
+a different topic or escalate for human judgment; do not merely reword a rejected title.
 Research when evidence is thin, revise unsupported claims, change topic if necessary, and
 escalate for conflicting sources, unclear editorial decisions, or insufficient budget.
 Use concise reasons, not private chain-of-thought. Do not lower validation standards or
@@ -47,6 +52,7 @@ Fail if any blocking issue remains. Pass with style suggestions if facts are sup
 class Editor:
     def __init__(self, model, day, out, archive, sources, catalog, fetch, validate, check, limits):
         self.model, self.day, self.out, self.archive = model, day, Path(out), archive
+        self.model.report.setdefault('run_id', str(uuid.uuid4()) + '-1')
         self.sources = list(sources); self.catalog = tuple(catalog)
         self.fetch, self.validate, self.check, self.limits = fetch, validate, check, limits
         self.topic = self.draft = self.review = self.checked = None
@@ -66,6 +72,7 @@ class Editor:
 
     def context(self, step):
         return {'goal': 'One sourced article ready for human review',
+                'existing_title_index': title_index(self.archive),
                 'topic': self.topic, 'draft': self.draft, 'review': self.review,
                 'feedback': self.feedback, 'history': self.history,
                 'sources': self.sources,
@@ -111,8 +118,14 @@ class Editor:
             for key in ('topic', 'angle'):
                 if not isinstance(decision.get(key), str) or not decision[key].strip():
                     raise ValueError('Topic and angle are required')
+            self.topics += 1
+            # Invalidate the previous candidate even when this choice is rejected.
+            self.topic = self.draft = self.review = self.checked = None
+            match = match_title(decision['topic'], title_index(self.archive))
+            if match:
+                raise DuplicateTopic(match)
             self.topic = {k: decision[k] for k in ('topic', 'angle', 'source_urls')}
-            self.topics += 1; self.draft = self.review = self.checked = None; self.feedback = []
+            self.draft = self.review = self.checked = None; self.feedback = []
         elif action == 'research':
             urls = decision.get('source_urls')
             if not isinstance(urls, list) or not 1 <= len(urls) <= 2 or len(set(urls)) != len(urls):
@@ -201,6 +214,15 @@ class Editor:
                     if isinstance(error, BudgetStop): raise
                     calls = self.model.report['calls']
                     if calls and calls[-1].get('state') == 'reserved': raise
+                    if isinstance(error, DuplicateTopic):
+                        rejection = {'run_id': self.model.report['run_id'],
+                            'time': dt.datetime.now(dt.timezone.utc).isoformat(),
+                            'date': self.day, 'step': step + 1, 'stage': decision.get('action'),
+                            'proposal': decision if decision.get('action') == 'choose_topic' else self.draft,
+                            **error.match}
+                        with (self.out / 'rejections.jsonl').open('a') as log:
+                            log.write(json.dumps(rejection) + '\n')
+                        record['duplicate_rejection'] = error.match
                     self.feedback = [str(error)[:1000]]
                     if isinstance(self.review, dict) and isinstance(self.review.get('issues'), list):
                         self.feedback += [i[:1000] for i in self.review['issues'] if isinstance(i, str)]

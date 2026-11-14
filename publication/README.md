@@ -60,3 +60,42 @@ A fact-check response exhausted the old output limit. The cap is now 8,000 token
 ## Editor agent
 
 See [editor behavior and safeguards](editor-agent.md). The editor chooses the next action from the live draft, review feedback, available evidence, concise decision history and remaining budget. Revisions invalidate prior checks. A request for human input becomes a draft PR containing an escalation record, never an unchecked article. Closing an escalation unblocks a later daily attempt; PR comments are not automatically used as editor input.
+
+## Feature list, title index and duplicate audit
+
+Track pipeline ideas in [FEATURE-TODO.md](FEATURE-TODO.md). The minimal title index lives
+in `publication/title-index.json`, with title, slug, date and article-data path. `--build`
+refreshes it from committed `publication/articles/*.json`; CI checks it stays current.
+Each proposal independently rebuilds its input index from article data, saving the exact
+snapshot as `.publication-run/title-index.json`. A stale committed index cannot bypass a check.
+
+Before writing, `choose_topic.topic` is compared to indexed titles. Matches use identical
+normalized word sets, word-set overlap above 0.6, or text similarity above 0.85. Topic
+choices rejected as duplicates consume the existing topic allowance. The editor can choose
+a distinct topic or escalate; the topic angle alone does not override a match. Existing
+slug/title/body draft gates still apply. These are potential-duplication heuristics, not
+semantic proof: different wording can evade them, and legitimate follow-ups may be blocked.
+Review examples before changing thresholds or adding semantic matching.
+
+Every deterministic duplicate rejection appends to `.publication-run/rejections.jsonl`:
+UTC time, date, run ID (`GITHUB_RUN_ID-GITHUB_RUN_ATTEMPT`, or a local UUID), step, stage,
+proposal, reason code, and matched article identity. `editor.json` retains the match and
+feedback. Factual reviewer issues remain in `review.json`; they are not reclassified as
+deterministic title matches. `run.json` reports the same run ID, indexed article count,
+duplicate rejection count and final outcome, including failures and escalations.
+
+In Actions, an always-run audit step saves one immutable bundle per generated run at
+`publication/proposal-runs/<run-id>.json` on the **moon-journal-audit** branch. The bundle
+contains run status, the exact title index and rejection events. That branch is created
+on first use from the workflow commit; it is never merged into production or used to publish.
+The workflow summary links to each saved bundle. Inspect the branch's file list/history
+to review older rejected topics even after the 30-day artifacts expire. Runs without
+rejections still get a bundle, including already-published and failed runs. Queue skips
+and branch recovery report their status in the summary and perform no generation.
+
+Audit writes use the existing workflow token and concurrency group. Read/authentication
+or persistence failures fail the job visibly; evidence artifacts still upload. Run records
+are create-only, never silently replaced. If persistence fails, preserve the artifact and
+resolve the failure before rerunning paid generation. Local runs only write the ignored
+output directory; they do not write GitHub audit history. No new service, model call,
+spending limit, automatic merge or deployment is introduced.
