@@ -1,0 +1,80 @@
+{
+  "date": "2026-11-14",
+  "status": "needs-human-input",
+  "question": "Can an editor resolve the repeated evidence-quote verification failure against the retrieved NASA tides page and decide whether the current draft may proceed to submission?",
+  "topic": {
+    "topic": "How the Moon\u2019s Gravity Shapes Earth\u2019s Tides",
+    "angle": "Explain why the Moon\u2019s gravity creates tidal bulges on both the near and far sides of Earth, how the Sun modifies tides, and why real coastal tides do not follow a simple schedule based only on the Moon\u2019s position.",
+    "source_urls": [
+      "https://science.nasa.gov/moon/tides/"
+    ]
+  },
+  "feedback": [
+    "Fact checker evidence quote not found"
+  ],
+  "review_issues": [],
+  "decisions": [
+    {
+      "step": 1,
+      "action": "choose_topic",
+      "reason": "This is a well-supported evergreen topic not covered by the existing title index, with a clear explanatory angle in the retrieved NASA source.",
+      "result": "completed"
+    },
+    {
+      "step": 2,
+      "action": "draft",
+      "reason": "The topic is distinct from the indexed articles and the retrieved NASA tides page supports the planned explanation.",
+      "result": "completed"
+    },
+    {
+      "step": 3,
+      "action": "check",
+      "reason": "The draft is complete and cites the retrieved NASA tides source; request an independent factual review before deciding whether to revise or submit.",
+      "result": "needs-work",
+      "feedback": [
+        "Fact checker evidence quote not found"
+      ]
+    },
+    {
+      "step": 4,
+      "action": "revise",
+      "reason": "The reviewer passed the draft but flagged an evidence quote that could not be found; revise to keep claims tightly aligned with the cited NASA text and avoid unsupported wording.",
+      "result": "completed"
+    },
+    {
+      "step": 5,
+      "action": "check",
+      "reason": "The draft was revised after the evidence-quote issue; independently check the latest version before submission.",
+      "result": "needs-work",
+      "feedback": [
+        "Fact checker evidence quote not found"
+      ]
+    },
+    {
+      "step": 6,
+      "action": "revise",
+      "reason": "The factual review passed, but the evidence-quote check still failed. Use the NASA page\u2019s exact wording for the affected claims so the cited evidence can be verified, then request one final check.",
+      "result": "completed"
+    },
+    {
+      "step": 7,
+      "action": "check",
+      "reason": "The latest revision has not yet been independently checked. Request a final factual review against the retrieved NASA tides source before submission.",
+      "result": "needs-work",
+      "feedback": [
+        "Fact checker evidence quote not found"
+      ]
+    },
+    {
+      "step": 8,
+      "action": "escalate",
+      "reason": "The latest draft has not passed factual validation: although the reviewer marked it passed and listed NASA evidence, the fact checker repeatedly reported \u201cFact checker evidence quote not found.\u201d No revisions remain, so I cannot submit it as checked.",
+      "result": "completed"
+    }
+  ],
+  "article_proposed": false,
+  "draft_available": true,
+  "factual_review_complete": false,
+  "stop": null,
+  "next_action": "Resolve the editorial question before a new proposal run. The saved draft is not approved for publication by this run."
+}
