@@ -1,0 +1,36 @@
+{
+  "title": "The Moon Has Tides Too\u2014But They Don\u2019t Look Like Earth\u2019s",
+  "slug": "moon-tides-earth-gravity-lunar-scarps",
+  "category": "science",
+  "paragraphs": [
+    {
+      "text": "On Earth, tides are easiest to notice as ocean water rising and falling along shorelines. But gravity distorts both worlds: the Moon\u2019s pull slightly changes Earth\u2019s shape, and Earth\u2019s gravity slightly deforms the Moon. Earth is about 80 times as massive as the Moon, yet the lunar response is far less dramatic than ocean tides. Instead of a conspicuous surge of water, the effect is a small change in the solid lunar surface.",
+      "sources": [
+        "https://science.nasa.gov/moon/tides/"
+      ]
+    },
+    {
+      "text": "That change is small but measurable. Astronomers use lasers bounced off the lunar surface or special reflectors placed there to make extremely precise measurements. Earth\u2019s gravitational tide can change the Moon\u2019s surface by about 4\u20136 inches (10\u201315 centimeters). As the surface moves up and down, the points reflecting the laser light move with it. The gravitational effect therefore has to be accounted for in these measurements.",
+      "sources": [
+        "https://science.nasa.gov/moon/tides/"
+      ]
+    },
+    {
+      "text": "Earth\u2019s pull may also contribute to features on the Moon called lobate scarps: young cliffs that look like steps in the landscape. The Moon\u2019s hot interior cools, and the resulting contraction pushes the crust together. In some places, the crust buckles, breaks, and is pushed upward, forming a cliff. NASA describes scarp formation as involving both this contraction and Earth\u2019s gravitational pull on the lunar surface.",
+      "sources": [
+        "https://science.nasa.gov/moon/tides/"
+      ]
+    },
+    {
+      "text": "Images from NASA\u2019s Lunar Reconnaissance Orbiter have revealed thousands of these scarps. Their orientations provide evidence that Earth\u2019s gravity contributes to the formation of the cracks. That evidence does not make Earth\u2019s pull the only factor: the Moon\u2019s contraction as its interior cools is also part of the process described by NASA. Together, laser measurements and scarp patterns show two ways the gravitational interaction can be detected\u2014through the Moon\u2019s slight flexing and, potentially, in the stresses involved in shaping its surface.",
+      "sources": [
+        "https://science.nasa.gov/moon/tides/"
+      ]
+    }
+  ],
+  "date": "2026-11-15",
+  "topic": "The Moon Has Tides Too\u2014But They Don\u2019t Look Like Earth\u2019s",
+  "editorial_notes": [
+    "Paragraph 3 repeats the role of lunar contraction and Earth\u2019s gravity already explained in paragraph 2; consider shortening that recap."
+  ]
+}
