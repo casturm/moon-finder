@@ -55,3 +55,15 @@
 - Validation artifact: `publication/topic-index-review.md`; 94 offline publication tests
   pass, journal rebuild unchanged, workflow shell syntax and whitespace checks pass.
 - Review artifact: draft [PR #18](https://github.com/casturm/moon-finder/pull/18). No approvals recorded.
+
+## PR #21 evidence verification fix
+
+- User requested a fix PR; branch `codex/fact-check-evidence` separates reviewer
+  factual issues from deterministic quote/citation/coverage diagnostics, folds
+  limited harmless typography, and supplies precise repair feedback to checks.
+- Investigation and validation artifact: `publication/fact-check-review.md`.
+  Historical artifact download requires authentication; the exact historical
+  quote differences remain unverified. No article accepted by inference.
+- 99 offline publication tests pass; whitespace validation passes. No paid calls,
+  merge, publication or deployment. Code review, test-report approval, integration
+  and deployment approval remain pending.

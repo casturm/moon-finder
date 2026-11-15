@@ -1,6 +1,8 @@
 """Bounded, review-first lunar publication. Python standard library only."""
 import argparse
 import datetime as dt
+import difflib
+import unicodedata
 import hashlib
 import html
 from html.parser import HTMLParser
@@ -165,26 +167,69 @@ class Model:
         return json.loads(text)
 
 
+class ReviewValidationError(ValueError):
+    """Keep factual verdicts separate from deterministic evidence validation."""
+    def __init__(self, diagnostics):
+        self.diagnostics = diagnostics
+        super().__init__(json.dumps(diagnostics, ensure_ascii=False))
+
+
+def normalize_quote(text):
+    # Preserve words, numbers, case, negation and meaningful punctuation.
+    text = unicodedata.normalize('NFC', text).translate(str.maketrans({
+        '‘': "'", '’': "'", '“': '"', '”': '"', '‐': '-', '‑': '-'}))
+    return ' '.join(text.split())
+
+
+def nearest_passage(quote, evidence):
+    """Diagnostic only: similarity never grants passage through the gate."""
+    if not evidence: return ''
+    candidates = re.split(r'(?<=[.!?])\s+', evidence)
+    return max(candidates, key=lambda text: difflib.SequenceMatcher(
+        None, normalize_quote(quote), normalize_quote(text)).ratio())[:1200]
+
+
 def validate_review(review, article, sources):
-    if review.get('passed') is not True or review.get('issues') != [] or not review.get('claims'):
-        raise ValueError('Fact check failed')
+    diagnostics = []
+    if not isinstance(review, dict):
+        raise ReviewValidationError([{'category': 'review_format', 'message': 'Expected review object'}])
+    if review.get('passed') is not True or review.get('issues') != []:
+        diagnostics.append({'category': 'factual_review', 'message': 'Fact check failed',
+                            'passed': review.get('passed'), 'issues': review.get('issues')})
     suggestions = review.get('style_suggestions', [])
     if not isinstance(suggestions, list) or any(not isinstance(note, str) for note in suggestions):
-        raise ValueError('Invalid style suggestions')
+        diagnostics.append({'category': 'review_format', 'message': 'Invalid style suggestions'})
+    claims = review.get('claims')
+    if not isinstance(claims, list) or not claims:
+        diagnostics.append({'category': 'review_format', 'message': 'Expected nonempty claims list'})
+        claims = []
     covered = set()
-    for claim in review['claims']:
+    for number, claim in enumerate(claims):
+        if not isinstance(claim, dict):
+            diagnostics.append({'category': 'review_format', 'claim_index': number, 'message': 'Invalid claim'})
+            continue
         index = claim.get('paragraph')
+        detail = {'claim_index': number, 'paragraph': index, 'claim': claim.get('claim'),
+                  'source_url': claim.get('source_url'), 'expected_quote': claim.get('evidence_quote')}
         if type(index) is not int or not 0 <= index < len(article['paragraphs']):
-            raise ValueError('Invalid review paragraph')
-        if claim['source_url'] not in article['paragraphs'][index]['sources']:
-            raise ValueError('Review source does not support cited paragraph')
-        evidence = next((s['text'] for s in sources if s['url'] == claim['source_url']), '')
+            diagnostics.append(dict(detail, category='review_format', message='Invalid review paragraph'))
+            continue
+        if claim.get('source_url') not in article['paragraphs'][index]['sources']:
+            diagnostics.append(dict(detail, category='citation', message='Review source does not support cited paragraph'))
+            continue
+        evidence = next((s['text'] for s in sources if s['url'] == claim.get('source_url')), '')
         quote = claim.get('evidence_quote')
-        if not isinstance(quote, str) or len(quote) < 12 or quote not in evidence:
-            raise ValueError('Fact checker evidence quote not found')
+        if not isinstance(quote, str) or len(normalize_quote(quote)) < 12 or normalize_quote(quote) not in normalize_quote(evidence):
+            diagnostics.append(dict(detail, category='quote_match',
+                message='Fact checker evidence quote not found',
+                source_passage=nearest_passage(quote if isinstance(quote, str) else '', evidence),
+                passage_is_diagnostic_only=True,
+                repair='Recheck the unchanged draft and copy a contiguous quote from this source; do not rewrite the article solely for a quote mismatch.'))
         covered.add(index)
-    if covered != set(range(len(article['paragraphs']))):
-        raise ValueError('Fact checker skipped paragraphs')
+    missing = sorted(set(range(len(article['paragraphs']))) - covered)
+    if missing:
+        diagnostics.append({'category': 'coverage', 'message': 'Fact checker skipped paragraphs', 'paragraphs': missing})
+    if diagnostics: raise ReviewValidationError(diagnostics)
 
 
 def page(title, body, stylesheet='journal.css'):
@@ -215,7 +260,7 @@ def run(day, out):
     out.mkdir(parents=True, exist_ok=True)
     dt.date.fromisoformat(day)
     # Never let a previous successful draft survive a failed rerun.
-    for name in ('article.json', 'draft.json', 'draft.html', 'review.json', 'evidence.json', 'escalation.json', 'editor.json', 'rejections.jsonl', 'title-index.json'):
+    for name in ('article.json', 'draft.json', 'draft.html', 'review.json', 'review-validation.json', 'evidence.json', 'escalation.json', 'editor.json', 'rejections.jsonl', 'title-index.json'):
         (out / name).unlink(missing_ok=True)
     report = {'date': day, 'run_id': os.environ.get('GITHUB_RUN_ID', str(uuid.uuid4())) + '-' + os.environ.get('GITHUB_RUN_ATTEMPT', '1'),
               'status': 'started', 'calls': [], 'sources': [], 'duplicate_rejections': 0}

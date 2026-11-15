@@ -44,6 +44,47 @@ class Gates(unittest.TestCase):
             {'paragraph': 0, 'source_url': URL, 'evidence_quote': 'Invented supporting evidence.'}]}
         with self.assertRaisesRegex(ValueError, 'quote not found'):
             p.validate_review(review, ARTICLE, [{'url': URL, 'text': 'The Moon travels around Earth.'}])
+    def review_fixture(self, quote):
+        return {'passed': True, 'issues': [], 'claims': [
+            {'paragraph': i, 'claim': 'Orbit', 'source_url': URL, 'evidence_quote': quote}
+            for i in range(3)]}
+
+    def test_quote_formatting_is_normalized_on_both_sides(self):
+        source = 'The Moon’s orbit is non‑circular. Café observations.'
+        quote = "The Moon's\n orbit is non-circular. Cafe\u0301 observations."
+        p.validate_review(self.review_fixture(quote), ARTICLE, [{'url': URL, 'text': source}])
+        p.validate_review(self.review_fixture(source), ARTICLE, [{'url': URL, 'text': quote}])
+
+    def test_substantive_changes_and_stitched_quotes_still_block(self):
+        source = 'The Moon travels around Earth. Its orbit takes 27 days.'
+        for quote in ['The Moon does not travel around Earth.',
+                      'The Moon travels around Earth. Its orbit takes 28 days.',
+                      'The Moon travels ... Its orbit takes 27 days.',
+                      'the moon travels around earth.', '   ' * 20]:
+            with self.subTest(quote=quote), self.assertRaises(p.ReviewValidationError) as caught:
+                p.validate_review(self.review_fixture(quote), ARTICLE, [{'url': URL, 'text': source}])
+            diagnostic = caught.exception.diagnostics[0]
+            self.assertEqual(diagnostic['category'], 'quote_match')
+            self.assertEqual(diagnostic['claim'], 'Orbit')
+            self.assertEqual(diagnostic['expected_quote'], quote)
+            self.assertIn(diagnostic['source_passage'], source)
+
+    def test_factual_issues_and_quote_errors_are_reported_together(self):
+        review = self.review_fixture('An invented quote about the Moon.')
+        review.update(passed=False, issues=['Contradiction: wrong orbital period'])
+        with self.assertRaises(p.ReviewValidationError) as caught:
+            p.validate_review(review, ARTICLE, [{'url': URL, 'text': 'The Moon travels around Earth.'}])
+        self.assertEqual({d['category'] for d in caught.exception.diagnostics}, {'factual_review', 'quote_match'})
+        self.assertEqual(caught.exception.diagnostics[0]['issues'], review['issues'])
+
+    def test_missing_source_and_wrong_citation_fail_closed(self):
+        review = self.review_fixture('The Moon travels around Earth.')
+        with self.assertRaises(p.ReviewValidationError): p.validate_review(review, ARTICLE, [])
+        review['claims'][0]['source_url'] = 'https://example.com/'
+        with self.assertRaises(p.ReviewValidationError) as caught:
+            p.validate_review(review, ARTICLE, [{'url': URL, 'text': 'The Moon travels around Earth.'}])
+        self.assertEqual(caught.exception.diagnostics[0]['category'], 'citation')
+
     def test_render_rejects_unsafe_date(self):
         a = copy.deepcopy(ARTICLE); a['date'] = '../../escape'
         with tempfile.TemporaryDirectory() as d:
