@@ -38,6 +38,23 @@ class EditorTests(unittest.TestCase):
         e=self.make([TOPIC,{'action':'draft'},ARTICLE,{'action':'check'},REVIEW,{'action':'submit'}])
         self.assertEqual(e.run()['slug'],'lunar-orbit')
         self.assertEqual([x['action'] for x in e.history],['choose_topic','draft','check','submit'])
+    def test_quote_repair_rechecks_unchanged_draft_without_revision(self):
+        bad = copy.deepcopy(REVIEW)
+        bad['claims'][0]['evidence_quote'] = 'The Moon does not travel around Earth.'
+        e = self.make([TOPIC, {'action': 'draft'}, ARTICLE, {'action': 'check'}, bad,
+                       {'action': 'check'}, REVIEW, {'action': 'submit'}])
+        self.assertIsNotNone(e.run())
+        self.assertEqual(e.revisions, 0)
+        self.assertEqual(e.model.inputs[4]['article'], e.model.inputs[6]['article'])
+        detail = json.loads(e.model.inputs[6]['feedback'][0])
+        self.assertEqual(detail['expected_quote'], bad['claims'][0]['evidence_quote'])
+        self.assertEqual(detail['source_passage'], SOURCE['text'])
+        self.assertEqual(e.history[2]['review_diagnostics'][0], detail)
+        self.assertFalse(json.loads((e.out/'review-validation-03.json').read_text())['valid'])
+        self.assertTrue(json.loads((e.out/'review-validation.json').read_text())['valid'])
+        self.assertEqual(json.loads((e.out/'review-03.json').read_text()), bad)
+        self.assertEqual(json.loads((e.out/'review-04.json').read_text()), REVIEW)
+
     def test_reject_revise_recheck_submit(self):
         bad={'passed':False,'issues':['Remove unsupported rain claim'],'claims':[]}
         e=self.make([TOPIC,{'action':'draft'},ARTICLE,{'action':'check'},bad,

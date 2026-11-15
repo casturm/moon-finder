@@ -27,6 +27,9 @@ escalate for conflicting sources, unclear editorial decisions, or insufficient b
 Use concise reasons, not private chain-of-thought. Do not lower validation standards or
 fabricate citations. You have limited decisions and model calls: leave room for writing,
 checking and a submit decision. Recheck after each revision before revising again.
+A quote_match diagnostic is a review citation error, not proof of a false article claim.
+Use check again on the unchanged draft with the diagnostic feedback to repair quotations;
+revise the article only for identified factual or unsupported claims.
 Style alone must not cause escalation: submit with suggestions when revisions run out. Stop rather than looping without improvement.'''
 
 WRITE_PROMPT = '''Write or revise a factual 250–650 word lunar article in original language.
@@ -40,7 +43,9 @@ only where the evidence supports it. No invented news, dates, quotes or viewing 
 CHECK_PROMPT = '''Independently audit every factual claim in this draft against supplied sources.
 Return JSON {passed: boolean, issues: [string], style_suggestions: [string], claims: [{paragraph: zero-based integer,
 claim, source_url, evidence_quote}]}. Cover every paragraph and factual claim.
-Evidence quotes MUST be exact contiguous substrings, never ellipses or stitched passages.
+Evidence quotes MUST be exact contiguous substrings of the supplied source text, never ellipses or stitched passages.
+Use quote_match feedback to repair review quotations against the unchanged article.
+Do not confuse a quotation transcription error with a factual contradiction.
 Read qualified statements in context; distinguish factual errors from stylistic preferences.
 Put factual errors, unsupported assertions, contradictory evidence and substantial duplication
 of archived articles in issues; these block passage. Put repetition within the draft, tone,
@@ -104,6 +109,9 @@ class Editor:
             'decisions': self.history,
             'article_proposed': False, 'draft_available': self.draft is not None,
             'factual_review_complete': bool(self.checked and self.checked == self.signature()),
+            'reviewer_factual_verdict_passed': bool(isinstance(self.review, dict)
+                and self.review.get('passed') is True and self.review.get('issues') == []),
+            'evidence_validation_passed': bool(self.checked and self.checked == self.signature()),
             'stop': stop,
             'next_action': next_action + ' The saved draft is not approved for publication by this run.'})
         return None
@@ -171,9 +179,18 @@ class Editor:
             self.checked = None
             self.validate(self.draft, self.selected(), self.archive)
             self.review = self.model.ask(CHECK_PROMPT, {'article': self.draft, 'sources': self.selected(),
-                'archive': self.context(0)['archive']})
+                'archive': self.context(0)['archive'], 'feedback': self.feedback})
             self.save('review.json', self.review)
-            self.check(self.review, self.draft, self.selected())
+            self.save(f'review-{len(self.history):02d}.json', self.review)
+            try:
+                self.check(self.review, self.draft, self.selected())
+            except ValueError as error:
+                diagnostics = getattr(error, 'diagnostics', [])
+                self.save('review-validation.json', {'valid': False, 'diagnostics': diagnostics})
+                self.save(f'review-validation-{len(self.history):02d}.json', {'valid': False, 'diagnostics': diagnostics})
+                raise
+            self.save('review-validation.json', {'valid': True, 'diagnostics': []})
+            self.save(f'review-validation-{len(self.history):02d}.json', {'valid': True, 'diagnostics': []})
             self.checked = self.signature(); self.feedback = self.review.get('style_suggestions', [])
             if self.revisions >= self.limits['max_revisions']:
                 return self.submission()
@@ -223,7 +240,12 @@ class Editor:
                         with (self.out / 'rejections.jsonl').open('a') as log:
                             log.write(json.dumps(rejection) + '\n')
                         record['duplicate_rejection'] = error.match
-                    self.feedback = [str(error)[:1000]]
+                    diagnostics = getattr(error, 'diagnostics', None)
+                    if diagnostics is not None:
+                        record['review_diagnostics'] = diagnostics
+                        self.feedback = [json.dumps(item, ensure_ascii=False) for item in diagnostics]
+                    else:
+                        self.feedback = [str(error)[:1000]]
                     if isinstance(self.review, dict) and isinstance(self.review.get('issues'), list):
                         self.feedback += [i[:1000] for i in self.review['issues'] if isinstance(i, str)]
                     record['result'] = 'needs-work'; record['feedback'] = self.feedback
