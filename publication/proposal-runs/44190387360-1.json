@@ -1,0 +1,277 @@
+{
+  "run": {
+    "date": "2026-11-17",
+    "run_id": "44190387360-1",
+    "status": "needs-human-input",
+    "calls": [
+      {
+        "stage": "You are the Moon Journal editor",
+        "reservation_id": "5c56aba8-2a9b-4a38-88be-cb9b0f2bb91d",
+        "model": "gpt-6-luna",
+        "state": "settled",
+        "usage": {
+          "input_tokens": 18227,
+          "input_tokens_details": {
+            "cache_write_tokens": 18224,
+            "cache_write_tokens_details": {
+              "ttl_12h_tokens": 0,
+              "ttl_30m_tokens": 18224
+            },
+            "cached_tokens": 0
+          },
+          "output_tokens": 352,
+          "output_tokens_details": {
+            "reasoning_tokens": 200
+          },
+          "total_tokens": 18579
+        },
+        "response_id": "resp_0caf1cc4626602ad016afcd514707487d2bb702d5cb8ad8d18",
+        "response_model": "gpt-6-luna",
+        "response_status": "completed",
+        "incomplete_details": null
+      },
+      {
+        "stage": "You are the Moon Journal editor",
+        "reservation_id": "adf34dfc-b168-4dae-bad1-c10b00e67a63",
+        "model": "gpt-6-luna",
+        "state": "settled",
+        "usage": {
+          "input_tokens": 18398,
+          "input_tokens_details": {
+            "cache_write_tokens": 18395,
+            "cache_write_tokens_details": {
+              "ttl_12h_tokens": 0,
+              "ttl_30m_tokens": 18395
+            },
+            "cached_tokens": 0
+          },
+          "output_tokens": 131,
+          "output_tokens_details": {
+            "reasoning_tokens": 29
+          },
+          "total_tokens": 18529
+        },
+        "response_id": "resp_0b5c000e51ce1acb016afcd51c4dbc87d2be79fd48aece70ac",
+        "response_model": "gpt-6-luna",
+        "response_status": "completed",
+        "incomplete_details": null
+      },
+      {
+        "stage": "You are the Moon Journal editor",
+        "reservation_id": "58a170ba-876c-466e-85ec-db7d377d1dcc",
+        "model": "gpt-6-luna",
+        "state": "settled",
+        "usage": {
+          "input_tokens": 25146,
+          "input_tokens_details": {
+            "cache_write_tokens": 25143,
+            "cache_write_tokens_details": {
+              "ttl_12h_tokens": 0,
+              "ttl_30m_tokens": 25143
+            },
+            "cached_tokens": 0
+          },
+          "output_tokens": 211,
+          "output_tokens_details": {
+            "reasoning_tokens": 22
+          },
+          "total_tokens": 25357
+        },
+        "response_id": "resp_0e19736faa057d3c016afcd52ace5087d2abd3dbfe85bc5458",
+        "response_model": "gpt-6-luna",
+        "response_status": "completed",
+        "incomplete_details": null
+      },
+      {
+        "stage": "Write or revise a factual 250\u2013650 word lunar article in original language",
+        "reservation_id": "877cfa8c-8d76-4acf-ab7f-6b9b6c8b7bad",
+        "model": "gpt-6-luna",
+        "state": "settled",
+        "usage": {
+          "input_tokens": 10394,
+          "input_tokens_details": {
+            "cache_write_tokens": 10391,
+            "cache_write_tokens_details": {
+              "ttl_12h_tokens": 0,
+              "ttl_30m_tokens": 10391
+            },
+            "cached_tokens": 0
+          },
+          "output_tokens": 946,
+          "output_tokens_details": {
+            "reasoning_tokens": 258
+          },
+          "total_tokens": 11340
+        },
+        "response_id": "resp_0be8f376049319d2016afcd530615c87d290b7dd871fb7c51b",
+        "response_model": "gpt-6-luna",
+        "response_status": "completed",
+        "incomplete_details": null
+      },
+      {
+        "stage": "You are the Moon Journal editor",
+        "reservation_id": "93652cb3-ffbe-4457-8a4e-2349b68c0f7b",
+        "model": "gpt-6-luna",
+        "state": "settled",
+        "usage": {
+          "input_tokens": 25894,
+          "input_tokens_details": {
+            "cache_write_tokens": 25891,
+            "cache_write_tokens_details": {
+              "ttl_12h_tokens": 0,
+              "ttl_30m_tokens": 25891
+            },
+            "cached_tokens": 0
+          },
+          "output_tokens": 103,
+          "output_tokens_details": {
+            "reasoning_tokens": 27
+          },
+          "total_tokens": 25997
+        },
+        "response_id": "resp_0b17854406def1c1016afcd53cbf9c87d2ba84aacac471dc2c",
+        "response_model": "gpt-6-luna",
+        "response_status": "completed",
+        "incomplete_details": null
+      },
+      {
+        "stage": "Independently audit every factual claim in this draft against supplied sources",
+        "reservation_id": "47614288-8572-4b0b-a928-04ed5ed17f70",
+        "model": "gpt-6-luna",
+        "state": "settled",
+        "usage": {
+          "input_tokens": 11659,
+          "input_tokens_details": {
+            "cache_write_tokens": 11656,
+            "cache_write_tokens_details": {
+              "ttl_12h_tokens": 0,
+              "ttl_30m_tokens": 11656
+            },
+            "cached_tokens": 0
+          },
+          "output_tokens": 3267,
+          "output_tokens_details": {
+            "reasoning_tokens": 1706
+          },
+          "total_tokens": 14926
+        },
+        "response_id": "resp_08265b72c207b53d016afcd541cdec87d28660a00af648bbbb",
+        "response_model": "gpt-6-luna",
+        "response_status": "completed",
+        "incomplete_details": null
+      },
+      {
+        "stage": "You are the Moon Journal editor",
+        "reservation_id": "3af8a259-ef7d-4e9b-8234-4538884aafdc",
+        "model": "gpt-6-luna",
+        "state": "settled",
+        "usage": {
+          "input_tokens": 28636,
+          "input_tokens_details": {
+            "cache_write_tokens": 28633,
+            "cache_write_tokens_details": {
+              "ttl_12h_tokens": 0,
+              "ttl_30m_tokens": 28633
+            },
+            "cached_tokens": 0
+          },
+          "output_tokens": 506,
+          "output_tokens_details": {
+            "reasoning_tokens": 79
+          },
+          "total_tokens": 29142
+        },
+        "response_id": "resp_02261d3223b9c715016afcd55e9e8c87d2bac1cb9ecf711505",
+        "response_model": "gpt-6-luna",
+        "response_status": "completed",
+        "incomplete_details": null
+      },
+      {
+        "stage": "Independently audit every factual claim in this draft against supplied sources",
+        "reservation_id": "c5a06e22-1ab2-4694-a7f8-200536434c01",
+        "model": "gpt-6-luna",
+        "state": "settled",
+        "usage": {
+          "input_tokens": 12072,
+          "input_tokens_details": {
+            "cache_write_tokens": 12069,
+            "cache_write_tokens_details": {
+              "ttl_12h_tokens": 0,
+              "ttl_30m_tokens": 12069
+            },
+            "cached_tokens": 0
+          },
+          "output_tokens": 2817,
+          "output_tokens_details": {
+            "reasoning_tokens": 1097
+          },
+          "total_tokens": 14889
+        },
+        "response_id": "resp_0c556a66f3038530016afcd566271c87d28043d78740e7c57c",
+        "response_model": "gpt-6-luna",
+        "response_status": "completed",
+        "incomplete_details": null
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://science.nasa.gov/moon/facts/",
+        "sha256": "467d3f4a3a11613b9be1b7b1649a6d6b7a95d644f49f72f6d509f5d754e13a35"
+      },
+      {
+        "url": "https://science.nasa.gov/moon/moon-phases/",
+        "sha256": "c0543f645df1752d708294c8bfc851010a631a4810851e5a8a43edef1eda56e0"
+      },
+      {
+        "url": "https://science.nasa.gov/moon/tides/",
+        "sha256": "353adffb233c4aa6eb3668fa61120e67a58ebe1e9767e90bc5061975ca1328b7"
+      },
+      {
+        "url": "https://science.nasa.gov/moon/exploration/",
+        "sha256": "89d3b7640029dc9ce3d3ee680305b5d1c9cc838b0f746fae05bd228a1337d20f"
+      },
+      {
+        "url": "https://science.nasa.gov/moon/eclipses/",
+        "sha256": "ab07e3f159e3c69e17f02d08e9e1a33e0e34077113068ee34d64088425791ede"
+      },
+      {
+        "url": "https://science.nasa.gov/moon/moon-water-and-ices/",
+        "sha256": "14ce4c330cd497d86a499a5cc5f41a5e5aed0eaecea74d3e66de904a3a2278b4"
+      },
+      {
+        "url": "https://science.nasa.gov/solar-system/moon/meteoroid-strikes-eject-precious-water-from-moon/",
+        "sha256": "ea03a06c5638a8cf04890d6fa94845dea14351dd9b26e037032748510ad97aeb"
+      }
+    ],
+    "duplicate_rejections": 0,
+    "indexed_articles": 4,
+    "editor_decisions": 5
+  },
+  "title_index": [
+    {
+      "title": "Why Don\u2019t Eclipses Happen Every Month?",
+      "slug": "why-dont-eclipses-happen-every-month",
+      "date": "2026-10-25",
+      "path": "publication/articles/2026-10-25.json"
+    },
+    {
+      "title": "Why the Moon Is Sometimes Visible During the Day",
+      "slug": "why-the-moon-is-sometimes-visible-during-the-day",
+      "date": "2026-10-26",
+      "path": "publication/articles/2026-10-26.json"
+    },
+    {
+      "title": "Why a Lunar Month Is Longer Than the Moon\u2019s Orbit",
+      "slug": "why-lunar-month-longer-than-moons-orbit",
+      "date": "2026-11-11",
+      "path": "publication/articles/2026-11-11.json"
+    },
+    {
+      "title": "The Moon Has Tides Too\u2014But They Don\u2019t Look Like Earth\u2019s",
+      "slug": "moon-tides-earth-gravity-lunar-scarps",
+      "date": "2026-11-15",
+      "path": "publication/articles/2026-11-15.json"
+    }
+  ],
+  "rejections": []
+}
