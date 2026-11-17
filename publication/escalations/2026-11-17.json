@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-17",
+  "status": "needs-human-input",
+  "question": "Spending safety control stopped editing: Per-call token limit exceeded",
+  "topic": {
+    "topic": "How the Moon\u2019s water changes with sunlight and impacts",
+    "angle": "Explain that lunar water is not simply frozen in permanently dark craters: evidence indicates water or hydroxyl also occurs across sunlit areas, while micrometeoroid impacts can release some surface water. Keep distinctions between water ice, water molecules, and hydroxyl clear, and avoid implying the Moon has accessible liquid water.",
+    "source_urls": [
+      "https://science.nasa.gov/moon/facts/",
+      "https://science.nasa.gov/moon/moon-water-and-ices/",
+      "https://science.nasa.gov/solar-system/moon/meteoroid-strikes-eject-precious-water-from-moon/"
+    ]
+  },
+  "feedback": [
+    "{\"claim_index\": 2, \"paragraph\": 0, \"claim\": \"In 2020, SOFIA confirmed H\u2082O molecules on the sunlit lunar surface in Clavius Crater.\", \"source_url\": \"https://science.nasa.gov/moon/facts/\", \"expected_quote\": \"In October 2020, NASA\u2019s Stratospheric Observatory for Infrared Astronomy (SOFIA) confirmed, for the first time, water on the sunlit surface of the Moon. SOFIA detected water molecules (H2O) in Clavius Crater, one of the largest craters visible from Earth, located in the Moon\u2019s southern hemisphere.\", \"category\": \"quote_match\", \"message\": \"Fact checker evidence quote not found\", \"source_passage\": \"In October 2020, NASA\u2019s Stratospheric Observatory for Infrared Astronomy (SOFIA) confirmed, for the first time, water on the sunlit surface of the Moon.\", \"passage_is_diagnostic_only\": true, \"repair\": \"Recheck the unchanged draft and copy a contiguous quote from this source; do not rewrite the article solely for a quote mismatch.\"}",
+    "{\"claim_index\": 8, \"paragraph\": 1, \"claim\": \"The Moon's exosphere is a very thin envelope of gas and does not provide Earth-like atmospheric protection.\", \"source_url\": \"https://science.nasa.gov/solar-system/moon/meteoroid-strikes-eject-precious-water-from-moon/\", \"expected_quote\": \"the \u201cexosphere\u201d \u2013 a faint envelope of gases around the Moon.\", \"category\": \"citation\", \"message\": \"Review source does not support cited paragraph\"}",
+    "{\"claim_index\": 12, \"paragraph\": 2, \"claim\": \"The described impact release is not evidence that impacts create lakes or expose liquid water.\", \"source_url\": \"https://science.nasa.gov/solar-system/moon/meteoroid-strikes-eject-precious-water-from-moon/\", \"expected_quote\": \"LADEE detects these water molecules as they enter the tenuous lunar atmosphere.\", \"category\": \"quote_match\", \"message\": \"Fact checker evidence quote not found\", \"source_passage\": \"The LADEE spacecraft detects these water molecules as they enter the tenuous lunar atmosphere.\", \"passage_is_diagnostic_only\": true, \"repair\": \"Recheck the unchanged draft and copy a contiguous quote from this source; do not rewrite the article solely for a quote mismatch.\"}"
+  ],
+  "review_issues": [],
+  "decisions": [
+    {
+      "step": 1,
+      "action": "choose_topic",
+      "reason": "This offers a fresh, useful angle beyond the existing eclipse, phase, orbit, and tide articles; NASA\u2019s retrieved Moon facts support the basics, but a dedicated source is needed for stronger evidence.",
+      "result": "completed"
+    },
+    {
+      "step": 2,
+      "action": "research",
+      "reason": "The current source establishes lunar hydration and water on sunlit terrain, but these dedicated NASA sources can better support the distinctions among water, hydroxyl, polar ice, and impact-driven release.",
+      "result": "completed"
+    },
+    {
+      "step": 3,
+      "action": "draft",
+      "reason": "The retrieved NASA sources support the key distinctions between sunlit-surface water, polar ice, hydroxyl, and impact-driven release; the topic is distinct from the existing articles.",
+      "result": "completed"
+    },
+    {
+      "step": 4,
+      "action": "check",
+      "reason": "The draft is complete and its claims are tied to retrieved NASA sources; an independent factual review is needed before submission.",
+      "review_diagnostics": [
+        {
+          "claim_index": 1,
+          "paragraph": 0,
+          "claim": "Early observations detected hydroxyl, which is distinct from H\u2082O.",
+          "source_url": "https://science.nasa.gov/solar-system/moon/meteoroid-strikes-eject-precious-water-from-moon/",
+          "expected_quote": "There\u2019s evidence that the Moon has water (H 2 O) and hydroxyl (OH), a more reactive relative of H 2 O.",
+          "category": "citation",
+          "message": "Review source does not support cited paragraph"
+        },
+        {
+          "claim_index": 6,
+          "paragraph": 1,
+          "claim": "The Moon's exosphere is a very thin envelope of gas and does not provide Earth-like atmospheric conditions; the evidence discussed is for ice and molecules, not accessible liquid water.",
+          "source_url": "https://science.nasa.gov/solar-system/moon/meteoroid-strikes-eject-precious-water-from-moon/",
+          "expected_quote": "The mission orbited the Moon from October 2013 to April 2014 and gathered detailed information about the structure and composition of the lunar atmosphere, or more correctly, the \u201cexosphere\u201d \u2013 a faint envelope of gases around the Moon.",
+          "category": "citation",
+          "message": "Review source does not support cited paragraph"
+        },
+        {
+          "claim_index": 11,
+          "paragraph": 3,
+          "claim": "The NASA study estimated that about two-thirds of vapor escapes into space and about one-third returns to the surface.",
+          "source_url": "https://science.nasa.gov/solar-system/moon/meteoroid-strikes-precious-water-from-moon/",
+          "expected_quote": "About two-thirds of that vapor escapes into space, but about one-third lands back on the surface of the Moon.",
+          "category": "citation",
+          "message": "Review source does not support cited paragraph"
+        }
+      ],
+      "result": "needs-work",
+      "feedback": [
+        "{\"claim_index\": 1, \"paragraph\": 0, \"claim\": \"Early observations detected hydroxyl, which is distinct from H\u2082O.\", \"source_url\": \"https://science.nasa.gov/solar-system/moon/meteoroid-strikes-eject-precious-water-from-moon/\", \"expected_quote\": \"There\u2019s evidence that the Moon has water (H 2 O) and hydroxyl (OH), a more reactive relative of H 2 O.\", \"category\": \"citation\", \"message\": \"Review source does not support cited paragraph\"}",
+        "{\"claim_index\": 6, \"paragraph\": 1, \"claim\": \"The Moon's exosphere is a very thin envelope of gas and does not provide Earth-like atmospheric conditions; the evidence discussed is for ice and molecules, not accessible liquid water.\", \"source_url\": \"https://science.nasa.gov/solar-system/moon/meteoroid-strikes-eject-precious-water-from-moon/\", \"expected_quote\": \"The mission orbited the Moon from October 2013 to April 2014 and gathered detailed information about the structure and composition of the lunar atmosphere, or more correctly, the \u201cexosphere\u201d \u2013 a faint envelope of gases around the Moon.\", \"category\": \"citation\", \"message\": \"Review source does not support cited paragraph\"}",
+        "{\"claim_index\": 11, \"paragraph\": 3, \"claim\": \"The NASA study estimated that about two-thirds of vapor escapes into space and about one-third returns to the surface.\", \"source_url\": \"https://science.nasa.gov/solar-system/moon/meteoroid-strikes-precious-water-from-moon/\", \"expected_quote\": \"About two-thirds of that vapor escapes into space, but about one-third lands back on the surface of the Moon.\", \"category\": \"citation\", \"message\": \"Review source does not support cited paragraph\"}"
+      ]
+    },
+    {
+      "step": 5,
+      "action": "check",
+      "reason": "The article passed its factual review; the reported issues are citation-quote mismatches, not evidence that the claims are false. Recheck the unchanged draft using these diagnostics to correct the review citations.",
+      "review_diagnostics": [
+        {
+          "claim_index": 2,
+          "paragraph": 0,
+          "claim": "In 2020, SOFIA confirmed H\u2082O molecules on the sunlit lunar surface in Clavius Crater.",
+          "source_url": "https://science.nasa.gov/moon/facts/",
+          "expected_quote": "In October 2020, NASA\u2019s Stratospheric Observatory for Infrared Astronomy (SOFIA) confirmed, for the first time, water on the sunlit surface of the Moon. SOFIA detected water molecules (H2O) in Clavius Crater, one of the largest craters visible from Earth, located in the Moon\u2019s southern hemisphere.",
+          "category": "quote_match",
+          "message": "Fact checker evidence quote not found",
+          "source_passage": "In October 2020, NASA\u2019s Stratospheric Observatory for Infrared Astronomy (SOFIA) confirmed, for the first time, water on the sunlit surface of the Moon.",
+          "passage_is_diagnostic_only": true,
+          "repair": "Recheck the unchanged draft and copy a contiguous quote from this source; do not rewrite the article solely for a quote mismatch."
+        },
+        {
+          "claim_index": 8,
+          "paragraph": 1,
+          "claim": "The Moon's exosphere is a very thin envelope of gas and does not provide Earth-like atmospheric protection.",
+          "source_url": "https://science.nasa.gov/solar-system/moon/meteoroid-strikes-eject-precious-water-from-moon/",
+          "expected_quote": "the \u201cexosphere\u201d \u2013 a faint envelope of gases around the Moon.",
+          "category": "citation",
+          "message": "Review source does not support cited paragraph"
+        },
+        {
+          "claim_index": 12,
+          "paragraph": 2,
+          "claim": "The described impact release is not evidence that impacts create lakes or expose liquid water.",
+          "source_url": "https://science.nasa.gov/solar-system/moon/meteoroid-strikes-eject-precious-water-from-moon/",
+          "expected_quote": "LADEE detects these water molecules as they enter the tenuous lunar atmosphere.",
+          "category": "quote_match",
+          "message": "Fact checker evidence quote not found",
+          "source_passage": "The LADEE spacecraft detects these water molecules as they enter the tenuous lunar atmosphere.",
+          "passage_is_diagnostic_only": true,
+          "repair": "Recheck the unchanged draft and copy a contiguous quote from this source; do not rewrite the article solely for a quote mismatch."
+        }
+      ],
+      "result": "needs-work",
+      "feedback": [
+        "{\"claim_index\": 2, \"paragraph\": 0, \"claim\": \"In 2020, SOFIA confirmed H\u2082O molecules on the sunlit lunar surface in Clavius Crater.\", \"source_url\": \"https://science.nasa.gov/moon/facts/\", \"expected_quote\": \"In October 2020, NASA\u2019s Stratospheric Observatory for Infrared Astronomy (SOFIA) confirmed, for the first time, water on the sunlit surface of the Moon. SOFIA detected water molecules (H2O) in Clavius Crater, one of the largest craters visible from Earth, located in the Moon\u2019s southern hemisphere.\", \"category\": \"quote_match\", \"message\": \"Fact checker evidence quote not found\", \"source_passage\": \"In October 2020, NASA\u2019s Stratospheric Observatory for Infrared Astronomy (SOFIA) confirmed, for the first time, water on the sunlit surface of the Moon.\", \"passage_is_diagnostic_only\": true, \"repair\": \"Recheck the unchanged draft and copy a contiguous quote from this source; do not rewrite the article solely for a quote mismatch.\"}",
+        "{\"claim_index\": 8, \"paragraph\": 1, \"claim\": \"The Moon's exosphere is a very thin envelope of gas and does not provide Earth-like atmospheric protection.\", \"source_url\": \"https://science.nasa.gov/solar-system/moon/meteoroid-strikes-eject-precious-water-from-moon/\", \"expected_quote\": \"the \u201cexosphere\u201d \u2013 a faint envelope of gases around the Moon.\", \"category\": \"citation\", \"message\": \"Review source does not support cited paragraph\"}",
+        "{\"claim_index\": 12, \"paragraph\": 2, \"claim\": \"The described impact release is not evidence that impacts create lakes or expose liquid water.\", \"source_url\": \"https://science.nasa.gov/solar-system/moon/meteoroid-strikes-eject-precious-water-from-moon/\", \"expected_quote\": \"LADEE detects these water molecules as they enter the tenuous lunar atmosphere.\", \"category\": \"quote_match\", \"message\": \"Fact checker evidence quote not found\", \"source_passage\": \"The LADEE spacecraft detects these water molecules as they enter the tenuous lunar atmosphere.\", \"passage_is_diagnostic_only\": true, \"repair\": \"Recheck the unchanged draft and copy a contiguous quote from this source; do not rewrite the article solely for a quote mismatch.\"}"
+      ]
+    }
+  ],
+  "article_proposed": false,
+  "draft_available": true,
+  "factual_review_complete": false,
+  "reviewer_factual_verdict_passed": true,
+  "evidence_validation_passed": false,
+  "stop": {
+    "code": "budget-limit"
+  },
+  "next_action": "Review the configured spending, token and call limits before a new attempt. The saved draft is not approved for publication by this run."
+}
