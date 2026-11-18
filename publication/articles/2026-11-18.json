@@ -1,0 +1,38 @@
+{
+  "title": "Where Moon Water Hides\u2014and Why It Is Hard to Use",
+  "slug": "where-moon-water-hides-and-why-it-is-hard-to-use",
+  "category": "science",
+  "paragraphs": [
+    {
+      "text": "The Moon\u2019s water is not gathered in lakes or rivers. Some is found as molecules associated with lunar soil, while water ice has been confirmed at multiple locations in permanently shadowed regions\u2014areas that sunlight never reaches. At the poles, these cold traps can preserve water vapor and other volatile substances that settle there. The Moon has a tenuous exosphere, rather than a substantial atmosphere; water vapor released into it can spread, escape into space, or return to the surface.",
+      "sources": [
+        "https://science.nasa.gov/moon/moon-water-and-ices/",
+        "https://science.nasa.gov/solar-system/moon/meteoroid-strikes-eject-precious-water-from-moon/"
+      ]
+    },
+    {
+      "text": "The evidence has strengthened over time. Clementine and Lunar Prospector data offered early indications of polar ice, but their resolution did not allow strong conclusions. Later, the LCROSS mission\u2019s impact and observations of the resulting debris showed grains of water ice in material ejected from a shadowed crater. In 2018, analysis of Chandrayaan-1\u2019s Moon Mineralogy Mapper data identified multiple confirmed locations of water ice in permanently shadowed regions. These findings establish that ice exists there, but they do not by themselves show how much is present or how readily it can be collected.",
+      "sources": [
+        "https://science.nasa.gov/moon/moon-water-and-ices/"
+      ]
+    },
+    {
+      "text": "Impacts can move lunar water. NASA\u2019s LADEE spacecraft detected short-lived vapor in the exosphere during meteoroid showers. Researchers concluded that impacts can punch through a dry upper layer\u2014at least about 8 centimeters deep in the events studied\u2014and release water from a hydrated layer beneath it. Their estimate for that layer was 200 to 500 parts per million water by weight. The measurements did not settle how much of the detected material was H\u2082O rather than hydroxyl (OH), and the estimate describes the hydrated layer, not a measured stockpile of accessible ice.",
+      "sources": [
+        "https://science.nasa.gov/solar-system/moon/meteoroid-strikes-eject-precious-water-from-moon/"
+      ]
+    },
+    {
+      "text": "After an impact, vapor spreads through the exosphere. The study estimated that about two-thirds escapes to space and about one-third falls back onto the surface; impacts can therefore transport water both into and out of polar cold traps. The same study\u2019s estimate of 200\u2013500 parts per million implies that processing more than a metric ton of regolith would be needed to collect 16 ounces of water from material with that concentration. That calculation illustrates why confirmed lunar water should not be mistaken for an easy-to-use resource: its form, location, quantity, and accessibility matter, and the cited observations do not establish how practical future extraction would be.",
+      "sources": [
+        "https://science.nasa.gov/solar-system/moon/meteoroid-strikes-eject-precious-water-from-moon/",
+        "https://science.nasa.gov/moon/moon-water-and-ices/"
+      ]
+    }
+  ],
+  "date": "2026-11-18",
+  "topic": "Where Moon Water Hides\u2014and Why It Is Hard to Use",
+  "editorial_notes": [
+    "The draft repeats the 200\u2013500 parts-per-million estimate in paragraphs 2 and 3; consider consolidating the explanation if you want a tighter article."
+  ]
+}
