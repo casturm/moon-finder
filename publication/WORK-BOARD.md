@@ -1,5 +1,17 @@
 # Work board
 
+## PR #24 validation follow-up
+
+- User confirmed the proposed scope: preserve blocking treatment for unsupported inference,
+  allow faithful paraphrase, target evidence repair, and bound repeat checks and context.
+- Review branch `codex/pr24-validation-followup`: targeted claim reassessment still requires
+  an exact quote from a paragraph-cited snapshot and a passing factual judgment. Two checks
+  per unchanged draft/evidence, then escalation; existing spending and human gates remain.
+- Offline regression checks cover the PR #24 quote and citation failures, unsupported
+  inference and bounded repair. No live paid call, merge or deployment performed.
+- Scope approved by user; test report, code diff, integration and deployment approvals
+  remain separate and pending.
+
 - PR #1: reviewed, approved and merged by user; GitHub Pages deployment succeeded.
 - Artifact upload: user manually fixed and merged; export confirmed successful.
 - Ledger initialized; first daily test retrieved all sources but OpenAI returned HTTP 400 before topic generation. The request has an unresolved reservation, not confirmed spend.

@@ -50,3 +50,20 @@ The preview is saved immediately with draft.json, before validation, so later re
 budget or editor stops do not hide the draft. A rerun removes the latest draft.html
 before starting, just as it removes draft.json. No preview is added to the live journal
 or article PR, and no additional model call is made.
+
+## PR #24 evidence follow-up
+
+The checker accepts a faithful paraphrase that preserves the source's material meaning.
+Contradictions, misleading claims and unsupported inferences block submission; numbers,
+dates, mechanisms, scope, uncertainty and negation require particular care. Style remains
+advisory. Evidence transcription and paragraph-citation errors are identified separately.
+
+When a passing review has only quote or citation diagnostics, the next check reassesses
+only affected claims against their paragraphs and cited source snapshots. It must explicitly
+judge support and provide an exact contiguous source quote; the ordinary deterministic review
+validation still applies. Similarity never grants approval. A rejected inference blocks the
+draft. At most two check calls are allowed for an unchanged draft and selected evidence;
+a further check escalates. Revising the draft or changing selected evidence requires a new
+full review. The editor sees source excerpts and compact decision history; the writer and
+checker still receive full selected snapshots. Existing spending limits and human review
+remain in force. A model's support judgment can be wrong, so human review remains essential.
