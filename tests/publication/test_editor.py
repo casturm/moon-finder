@@ -41,12 +41,14 @@ class EditorTests(unittest.TestCase):
     def test_quote_repair_rechecks_unchanged_draft_without_revision(self):
         bad = copy.deepcopy(REVIEW)
         bad['claims'][0]['evidence_quote'] = 'The Moon does not travel around Earth.'
+        repair = {'repairs': [{'claim_index': 0, 'supported': True, 'reason': 'The source supports the claim.',
+                               'source_url': URL, 'evidence_quote': SOURCE['text']}]}
         e = self.make([TOPIC, {'action': 'draft'}, ARTICLE, {'action': 'check'}, bad,
-                       {'action': 'check'}, REVIEW, {'action': 'submit'}])
+                       {'action': 'check'}, repair, {'action': 'submit'}])
         self.assertIsNotNone(e.run())
         self.assertEqual(e.revisions, 0)
-        self.assertEqual(e.model.inputs[4]['article'], e.model.inputs[6]['article'])
-        detail = json.loads(e.model.inputs[6]['feedback'][0])
+        self.assertEqual(e.model.inputs[6]['claims'][0]['paragraph'], ARTICLE['paragraphs'][0])
+        detail = e.model.inputs[6]['diagnostics'][0]
         self.assertEqual(detail['expected_quote'], bad['claims'][0]['evidence_quote'])
         self.assertEqual(detail['source_passage'], SOURCE['text'])
         self.assertEqual(e.history[2]['review_diagnostics'][0], detail)
@@ -54,6 +56,60 @@ class EditorTests(unittest.TestCase):
         self.assertTrue(json.loads((e.out/'review-validation.json').read_text())['valid'])
         self.assertEqual(json.loads((e.out/'review-03.json').read_text()), bad)
         self.assertEqual(json.loads((e.out/'review-04.json').read_text()), REVIEW)
+
+    def test_pr24_targeted_repair_rejects_unsupported_inference(self):
+        bad = copy.deepcopy(REVIEW)
+        bad['claims'][0].update(claim='The exosphere protects the Moon from impacts.',
+                                evidence_quote='LADEE detects these water molecules as they enter the tenuous lunar atmosphere.')
+        repair = {'repairs': [{'claim_index': 0, 'supported': False, 'reason': 'Protection is not established.'}]}
+        e = self.make([TOPIC, {'action':'draft'}, ARTICLE, {'action':'check'}, bad,
+                       {'action':'check'}, repair, {'action':'submit'},
+                       {'action':'escalate', 'question':'Unsupported inference'}])
+        self.assertIsNone(e.run())
+        self.assertIn('Unsupported claim', e.history[3]['feedback'][-1])
+
+    def test_pr24_bad_repair_quote_still_blocks_and_retry_is_bounded(self):
+        bad = copy.deepcopy(REVIEW)
+        bad['claims'][0]['evidence_quote'] = 'LADEE detects these water molecules as they enter the tenuous lunar atmosphere.'
+        repair = {'repairs': [{'claim_index': 0, 'supported': True, 'reason': 'Supported',
+                               'source_url': URL, 'evidence_quote': 'The Moon does not travel around Earth.'}]}
+        e = self.make([TOPIC, {'action':'draft'}, ARTICLE, {'action':'check'}, bad,
+                       {'action':'check'}, repair, {'action':'check'}])
+        self.assertIsNone(e.run())
+        self.assertIn('Check limit reached', json.loads((e.out/'escalation.json').read_text())['question'])
+        self.assertEqual(len(e.model.inputs), 8)
+
+    def test_pr24_sofia_quote_and_wrong_paragraph_citation_are_reassessed(self):
+        source_text = ('In October 2020, SOFIA confirmed water on the sunlit Moon. '
+                       'SOFIA detected water molecules in Clavius Crater.')
+        bad = copy.deepcopy(REVIEW)
+        bad['claims'][0].update(claim='In 2020 SOFIA confirmed water in Clavius Crater.',
+            evidence_quote='In October 2020, SOFIA confirmed water on the sunlit Moon. '
+                           'SOFIA detected water molecules in Clavius Crater.', source_url=SOURCES[5])
+        repaired = {'repairs': [{'claim_index': 0, 'supported': True, 'reason': 'The source supports the paraphrase.',
+            'source_url': URL, 'evidence_quote': source_text}]}
+        e = self.make([])
+        e.sources[0] = dict(SOURCE, text=source_text)
+        article = copy.deepcopy(ARTICLE)
+        review = copy.deepcopy(bad)
+        for claim in review['claims'][1:]: claim['evidence_quote'] = source_text
+        e.model.replies = iter([TOPIC, {'action':'draft'}, article, {'action':'check'}, review,
+                                {'action':'check'}, repaired, {'action':'submit'}])
+        self.assertIsNotNone(e.run())
+        self.assertEqual(e.history[2]['review_diagnostics'][0]['category'], 'citation')
+
+    def test_pr24_mismatched_sofia_and_ladee_quotes_are_not_accepted(self):
+        from publication.pipeline import ReviewValidationError
+        text = ('In October 2020, SOFIA confirmed water on the sunlit Moon. '
+                'SOFIA detected water molecules in Clavius Crater. '
+                'The LADEE spacecraft detects these water molecules as they enter the tenuous lunar atmosphere.')
+        review = copy.deepcopy(REVIEW)
+        review['claims'][0]['evidence_quote'] = 'SOFIA confirmed water on the sunlit Moon. SOFIA detected water in Clavius Crater.'
+        review['claims'][1]['evidence_quote'] = 'LADEE detects these water molecules as they enter the tenuous lunar atmosphere.'
+        review['claims'][2]['evidence_quote'] = 'SOFIA detected water molecules in Clavius Crater.'
+        with self.assertRaises(ReviewValidationError) as error:
+            validate_review(review, ARTICLE, [dict(SOURCE, text=text)])
+        self.assertEqual([d['category'] for d in error.exception.diagnostics], ['quote_match', 'quote_match'])
 
     def test_reject_revise_recheck_submit(self):
         bad={'passed':False,'issues':['Remove unsupported rain claim'],'claims':[]}

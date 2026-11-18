@@ -214,8 +214,9 @@ def validate_review(review, article, sources):
         if type(index) is not int or not 0 <= index < len(article['paragraphs']):
             diagnostics.append(dict(detail, category='review_format', message='Invalid review paragraph'))
             continue
+        covered.add(index)
         if claim.get('source_url') not in article['paragraphs'][index]['sources']:
-            diagnostics.append(dict(detail, category='citation', message='Review source does not support cited paragraph'))
+            diagnostics.append(dict(detail, category='citation', message='Review source is not cited in this paragraph'))
             continue
         evidence = next((s['text'] for s in sources if s['url'] == claim.get('source_url')), '')
         quote = claim.get('evidence_quote')
@@ -225,7 +226,6 @@ def validate_review(review, article, sources):
                 source_passage=nearest_passage(quote if isinstance(quote, str) else '', evidence),
                 passage_is_diagnostic_only=True,
                 repair='Recheck the unchanged draft and copy a contiguous quote from this source; do not rewrite the article solely for a quote mismatch.'))
-        covered.add(index)
     missing = sorted(set(range(len(article['paragraphs']))) - covered)
     if missing:
         diagnostics.append({'category': 'coverage', 'message': 'Fact checker skipped paragraphs', 'paragraphs': missing})
