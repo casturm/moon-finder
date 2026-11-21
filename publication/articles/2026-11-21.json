@@ -1,0 +1,33 @@
+{
+  "title": "Why the Moon\u2019s Far Side Is Not Its Dark Side",
+  "slug": "why-the-moons-far-side-is-not-its-dark-side",
+  "category": "science",
+  "paragraphs": [
+    {
+      "text": "The Moon\u2019s \u201cfar side\u201d is the hemisphere we generally cannot see from Earth\u2014not a hemisphere that is always dark. The Moon is tidally locked to Earth: it rotates once on its axis during each orbit around our planet, so the same side usually faces us. That matched rotation and orbit create the familiar near side and far side, defined by our viewpoint, not by how much sunlight each receives.",
+      "sources": [
+        "https://science.nasa.gov/moon/facts/",
+        "https://science.nasa.gov/moon/moon-phases/"
+      ]
+    },
+    {
+      "text": "Sunlight still reaches both hemispheres over time. The Moon\u2019s day side faces the Sun, while its night side faces away; as the Moon rotates and travels around Earth, those regions change. The far side therefore has lunar daytime and nighttime, just as the near side does. From Earth, we see the changing phases because the Moon\u2019s position relative to the Sun changes how much of its sunlit half is visible to us. At full Moon, the side facing Earth is illuminated. At new Moon, that near side is in darkness while the far side is sunlit.",
+      "sources": [
+        "https://science.nasa.gov/moon/facts/",
+        "https://science.nasa.gov/moon/moon-phases/"
+      ]
+    },
+    {
+      "text": "\u201cDark side\u201d can also be confused with places that truly receive little or no direct sunlight. Near the lunar poles, some craters contain permanently shadowed regions. Those localized areas are distinct from the far side as a whole: they are defined by persistent shadow, whereas \u201cfar side\u201d means the hemisphere turned away from Earth. NASA reports high concentrations of water ice in these polar shadowed regions, but that does not mean the entire far hemisphere is permanently dark. The Moon\u2019s near and far sides both experience changing illumination; permanently shadowed polar terrain is a separate feature of the lunar surface.",
+      "sources": [
+        "https://science.nasa.gov/moon/facts/",
+        "https://science.nasa.gov/moon/moon-phases/"
+      ]
+    }
+  ],
+  "date": "2026-11-21",
+  "topic": "Why the Moon\u2019s Far Side Is Not Its Dark Side",
+  "editorial_notes": [
+    "Paragraph 3 repeats the point that near and far sides both experience changing illumination, already explained in paragraph 2; consider tightening the ending."
+  ]
+}
