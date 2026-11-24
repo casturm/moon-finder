@@ -1,0 +1,31 @@
+{
+  "title": "Why the Moon Turns Red During a Total Lunar Eclipse",
+  "slug": "why-moon-turns-red-total-lunar-eclipse",
+  "category": "science",
+  "paragraphs": [
+    {
+      "text": "During a total lunar eclipse, Earth\u2019s shadow covers the Moon as it moves into the shadow\u2019s inner region, called the umbra. The Moon grows dim, but it does not produce a new color of its own: sunlight that passes through Earth\u2019s atmosphere still reaches the lunar surface. That altered illumination can make the Moon look orange or red. NASA describes the Moon\u2019s surface as largely covered by charcoal-gray dust and rocky debris, called lunar regolith; during an eclipse, it is the light reaching that surface that changes its appearance.",
+      "sources": [
+        "https://science.nasa.gov/moon/eclipses/",
+        "https://science.nasa.gov/moon/facts/"
+      ]
+    },
+    {
+      "text": "The color comes from how Earth\u2019s atmosphere filters sunlight. Sunlight contains different colors, and shorter-wavelength blue and violet light scatter more easily in the atmosphere than longer-wavelength red and orange light. During an eclipse, sunlight that has passed through a thick slice of atmosphere reaches the Moon; more of the red and orange light makes it through while much of the blue and violet has scattered away. The Moon\u2019s reddish appearance is therefore caused by the filtered sunlight illuminating it, rather than by a change to the Moon\u2019s surface.",
+      "sources": [
+        "https://science.nasa.gov/moon/eclipses/"
+      ]
+    },
+    {
+      "text": "The shade is not always the same. NASA notes that the Moon can appear redder when there is more dust or cloud in Earth\u2019s atmosphere during the eclipse. The same kind of filtering helps explain the colors of sunrise and sunset: sunlight travels through a longer path in the atmosphere, and more of its blue light scatters away before the remaining yellow-to-red light reaches an observer. In a lunar eclipse, filtered sunlight reaches the Moon instead. NASA compares the effect to the world\u2019s sunrises and sunsets being projected onto the lunar surface.",
+      "sources": [
+        "https://science.nasa.gov/moon/eclipses/"
+      ]
+    }
+  ],
+  "date": "2026-11-24",
+  "topic": "Why the Moon Turns Red During a Total Lunar Eclipse",
+  "editorial_notes": [
+    "Paragraphs 2 and 3 both explain atmospheric filtering; consider shortening the second explanation to reduce repetition."
+  ]
+}
