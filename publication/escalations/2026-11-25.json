@@ -1,0 +1,201 @@
+{
+  "date": "2026-11-25",
+  "status": "needs-human-input",
+  "question": "Please decide whether to remove the comparison between lunar crater preservation and Earth\u2019s rain-and-river erosion, or provide an appropriate source supporting that explanation. The article cannot be submitted as fact-checked in its current state.",
+  "topic": {
+    "topic": "Why the Moon Has So Many Craters\u2014and Why They Stay",
+    "angle": "Explain how impacts formed lunar craters and why, without substantial weather or flowing water to wear them down, many remain visible for immense spans of time. Distinguish this slow preservation from the idea that the Moon is geologically inactive in every respect.",
+    "source_urls": [
+      "https://science.nasa.gov/moon/facts/",
+      "https://science.nasa.gov/moon/exploration/"
+    ]
+  },
+  "feedback": [
+    "{\"category\": \"factual_review\", \"message\": \"Fact check failed\", \"passed\": false, \"issues\": [\"Paragraph 2 makes an unsupported causal claim: it says the Moon\u2019s thin atmosphere and lack of flowing liquid water explain the long preservation of craters, and that rain and river erosion therefore cannot continually reshape the landscape as on Earth. The supplied NASA source states that the Moon has a weak atmosphere and lacks liquid water, and separately says craters have been preserved for billions of years, but it does not establish this causal explanation or the specific erosion comparison. Qualify or remove that explanation, or support it with an appropriate source.\"]}",
+    "Paragraph 2 makes an unsupported causal claim: it says the Moon\u2019s thin atmosphere and lack of flowing liquid water explain the long preservation of craters, and that rain and river erosion therefore cannot continually reshape the landscape as on Earth. The supplied NASA source states that the Moon has a weak atmosphere and lacks liquid water, and separately says craters have been preserved for billions of years, but it does not establish this causal explanation or the specific erosion comparison. Qualify or remove that explanation, or support it with an appropriate source."
+  ],
+  "review_issues": [
+    "Paragraph 2 makes an unsupported causal claim: it says the Moon\u2019s thin atmosphere and lack of flowing liquid water explain the long preservation of craters, and that rain and river erosion therefore cannot continually reshape the landscape as on Earth. The supplied NASA source states that the Moon has a weak atmosphere and lacks liquid water, and separately says craters have been preserved for billions of years, but it does not establish this causal explanation or the specific erosion comparison. Qualify or remove that explanation, or support it with an appropriate source."
+  ],
+  "decisions": [
+    {
+      "step": 1,
+      "action": "research",
+      "reason": "Investigate a distinct, evidence-led angle on how meteoroid impacts move lunar water, while avoiding another general overview of where Moon water is found.",
+      "result": "completed"
+    },
+    {
+      "step": 2,
+      "action": "research",
+      "reason": "Gather evidence for a distinct lunar-water angle before deciding whether it can avoid duplicating the existing article.",
+      "result": "completed"
+    },
+    {
+      "step": 3,
+      "action": "choose_topic",
+      "reason": "A distinct evergreen topic supported by already retrieved NASA sources; it avoids the existing articles on eclipses, phases, water, tides, and lunar surface orientation.",
+      "result": "completed"
+    },
+    {
+      "step": 4,
+      "action": "draft",
+      "reason": "The topic is distinct from the existing titles, and relevant NASA source URLs have already been retrieved. Draft the article using supported claims and cite those sources.",
+      "result": "completed"
+    },
+    {
+      "step": 5,
+      "action": "check",
+      "reason": "The draft is complete and has sourced claims; request an independent factual and citation review before submission.",
+      "review_diagnostics": [
+        {
+          "category": "factual_review",
+          "message": "Fact check failed",
+          "passed": false,
+          "issues": [
+            "Paragraph 1 presents the absence of flowing water, rivers, and water-driven erosion as the reason crater rims and walls remain. The supplied NASA text says the Moon lacks liquid water and that its craters have been preserved for billions of years, but it does not establish that erosion mechanism or causal explanation. This inference is unsupported by the supplied sources.",
+            "Paragraph 1 says continued impacts \u201credistribute\u201d material. NASA says impacts grind the surface into fragments, but the supplied text does not support the additional claim that they redistribute it."
+          ]
+        },
+        {
+          "claim_index": 4,
+          "paragraph": 1,
+          "claim": "The Moon\u2019s weak atmosphere does not protect its surface from impacts, and NASA describes the Moon as lacking liquid water.",
+          "source_url": "https://science.nasa.gov/moon/facts/",
+          "expected_quote": "The Moon has a very thin and weak atmosphere . It does not provide any protection from the Sun's radiation or impacts.",
+          "category": "quote_match",
+          "message": "Fact checker evidence quote not found",
+          "source_passage": "It does not provide any protection from the Sun's radiation or impacts from meteoroids.",
+          "passage_is_diagnostic_only": true,
+          "repair": "Recheck the unchanged draft and copy a contiguous quote from this source; do not rewrite the article solely for a quote mismatch."
+        }
+      ],
+      "result": "needs-work",
+      "feedback": [
+        "{\"category\": \"factual_review\", \"message\": \"Fact check failed\", \"passed\": false, \"issues\": [\"Paragraph 1 presents the absence of flowing water, rivers, and water-driven erosion as the reason crater rims and walls remain. The supplied NASA text says the Moon lacks liquid water and that its craters have been preserved for billions of years, but it does not establish that erosion mechanism or causal explanation. This inference is unsupported by the supplied sources.\", \"Paragraph 1 says continued impacts \u201credistribute\u201d material. NASA says impacts grind the surface into fragments, but the supplied text does not support the additional claim that they redistribute it.\"]}",
+        "{\"claim_index\": 4, \"paragraph\": 1, \"claim\": \"The Moon\u2019s weak atmosphere does not protect its surface from impacts, and NASA describes the Moon as lacking liquid water.\", \"source_url\": \"https://science.nasa.gov/moon/facts/\", \"expected_quote\": \"The Moon has a very thin and weak atmosphere . It does not provide any protection from the Sun's radiation or impacts.\", \"category\": \"quote_match\", \"message\": \"Fact checker evidence quote not found\", \"source_passage\": \"It does not provide any protection from the Sun's radiation or impacts from meteoroids.\", \"passage_is_diagnostic_only\": true, \"repair\": \"Recheck the unchanged draft and copy a contiguous quote from this source; do not rewrite the article solely for a quote mismatch.\"}",
+        "Paragraph 1 presents the absence of flowing water, rivers, and water-driven erosion as the reason crater rims and walls remain. The supplied NASA text says the Moon lacks liquid water and that its craters have been preserved for billions of years, but it does not establish that erosion mechanism or causal explanation. This inference is unsupported by the supplied sources.",
+        "Paragraph 1 says continued impacts \u201credistribute\u201d material. NASA says impacts grind the surface into fragments, but the supplied text does not support the additional claim that they redistribute it."
+      ]
+    },
+    {
+      "step": 6,
+      "action": "check",
+      "reason": "The quote-match error is a citation diagnostic, so recheck the unchanged draft with that feedback; do not alter the article just to fix the quote.",
+      "review_diagnostics": [
+        {
+          "category": "factual_review",
+          "message": "Fact check failed",
+          "passed": false,
+          "issues": [
+            "Paragraph 1 (zero-based) gives the absence of rivers and water-driven erosion as the reason crater rims and walls remain recognizable. NASA\u2019s supplied text says the Moon lacks liquid water and that its craters have been preserved for billions of years, but it does not establish this erosion mechanism or causal explanation. This inference is unsupported by the supplied evidence.",
+            "Paragraph 1 says continued impacts \u201credistribute\u201d material. NASA supports that impacts grind the surface into fragments, but the supplied text does not support the additional claim of redistribution."
+          ]
+        }
+      ],
+      "result": "needs-work",
+      "feedback": [
+        "{\"category\": \"factual_review\", \"message\": \"Fact check failed\", \"passed\": false, \"issues\": [\"Paragraph 1 (zero-based) gives the absence of rivers and water-driven erosion as the reason crater rims and walls remain recognizable. NASA\u2019s supplied text says the Moon lacks liquid water and that its craters have been preserved for billions of years, but it does not establish this erosion mechanism or causal explanation. This inference is unsupported by the supplied evidence.\", \"Paragraph 1 says continued impacts \u201credistribute\u201d material. NASA supports that impacts grind the surface into fragments, but the supplied text does not support the additional claim of redistribution.\"]}",
+        "Paragraph 1 (zero-based) gives the absence of rivers and water-driven erosion as the reason crater rims and walls remain recognizable. NASA\u2019s supplied text says the Moon lacks liquid water and that its craters have been preserved for billions of years, but it does not establish this erosion mechanism or causal explanation. This inference is unsupported by the supplied evidence.",
+        "Paragraph 1 says continued impacts \u201credistribute\u201d material. NASA supports that impacts grind the surface into fragments, but the supplied text does not support the additional claim of redistribution."
+      ]
+    },
+    {
+      "step": 7,
+      "action": "revise",
+      "reason": "Address the two unsupported claims identified by the factual review while preserving supported details.",
+      "result": "completed"
+    },
+    {
+      "step": 8,
+      "action": "check",
+      "reason": "The draft was revised after two needs-work reviews; independently recheck the latest version before submission.",
+      "review_diagnostics": [
+        {
+          "category": "factual_review",
+          "message": "Fact check failed",
+          "passed": false,
+          "issues": [
+            "Paragraph 2 calls the lava-filled basins \u201clarge,\u201d but the supplied source identifies maria as impact basins without stating their size. Remove or support that qualifier."
+          ]
+        }
+      ],
+      "result": "needs-work",
+      "feedback": [
+        "{\"category\": \"factual_review\", \"message\": \"Fact check failed\", \"passed\": false, \"issues\": [\"Paragraph 2 calls the lava-filled basins \u201clarge,\u201d but the supplied source identifies maria as impact basins without stating their size. Remove or support that qualifier.\"]}",
+        "Paragraph 2 calls the lava-filled basins \u201clarge,\u201d but the supplied source identifies maria as impact basins without stating their size. Remove or support that qualifier."
+      ]
+    },
+    {
+      "step": 9,
+      "action": "revise",
+      "reason": "",
+      "result": "completed"
+    },
+    {
+      "step": 10,
+      "action": "check",
+      "reason": "The latest revised draft has not been checked; request an independent factual review before submission.",
+      "review_diagnostics": [
+        {
+          "category": "factual_review",
+          "message": "Fact check failed",
+          "passed": false,
+          "issues": [
+            "Paragraph 2 asserts that the lack of substantial atmosphere and flowing liquid water explains the Moon\u2019s long preservation, and that rain and river erosion therefore cannot continually reshape its landscape as on Earth. The supplied NASA source establishes that the Moon has a weak atmosphere and lacks liquid water, and separately says craters have been preserved for billions of years, but it does not make this causal explanation or support the specific comparison about erosion. This is an unsupported inference and blocks passage unless it is supported, qualified, or removed."
+          ]
+        },
+        {
+          "claim_index": 7,
+          "paragraph": 2,
+          "claim": "The absence of substantial atmosphere and flowing liquid water explains the Moon\u2019s long crater preservation, and prevents rain and river erosion from continually reshaping its landscape as on Earth.",
+          "source_url": "https://science.nasa.gov/moon/facts/",
+          "expected_quote": "",
+          "category": "quote_match",
+          "message": "Fact checker evidence quote not found",
+          "source_passage": "Moon Facts - NASA Science Explore Search Search Suggested Searches Artemis ISS Roman Webb Quesst Moon Base View All Topics A-Z Home Missions Humans in Space Earth The Solar System The Universe Science Aeronautics Technology Learning Resources About NASA Espa\u00f1ol News & Events Multimedia NASA+ Highlights 4 min read NASA\u2019s Titan-Bound Dragonfly Rotorcraft Gets Its Eyes article 1 day ago 4 min read NASA Sets Coverage for Northrop Grumman CRS-25 Launch, Prelaunch article 1 week ago 4 min read What\u2019s Up: November 2026 Skywatching Tips from NASA article 3 weeks ago Back Missions Search All NASA Missions A to Z List of Missions Upcoming Launches and Landings Spaceships and Rockets Communicating with Missions Artemis James Webb Space Telescope Hubble Space Telescope International Space Station OSIRIS-REx Humans in Space Why Go to Space Astronauts Commercial Space Destinations Spaceships and Rockets Living in Space Earth Explore Earth Science Climate Change Earth, Our Planet Earth Science in Action Earth Multimedia Earth Data Earth Science Researchers The Solar System The Sun Mercury Venus Earth The Moon Mars Jupiter Saturn Uranus Neptune Pluto & Dwarf Planets Asteroids, Comets & Meteors The",
+          "passage_is_diagnostic_only": true,
+          "repair": "Recheck the unchanged draft and copy a contiguous quote from this source; do not rewrite the article solely for a quote mismatch."
+        }
+      ],
+      "result": "needs-work",
+      "feedback": [
+        "{\"category\": \"factual_review\", \"message\": \"Fact check failed\", \"passed\": false, \"issues\": [\"Paragraph 2 asserts that the lack of substantial atmosphere and flowing liquid water explains the Moon\u2019s long preservation, and that rain and river erosion therefore cannot continually reshape its landscape as on Earth. The supplied NASA source establishes that the Moon has a weak atmosphere and lacks liquid water, and separately says craters have been preserved for billions of years, but it does not make this causal explanation or support the specific comparison about erosion. This is an unsupported inference and blocks passage unless it is supported, qualified, or removed.\"]}",
+        "{\"claim_index\": 7, \"paragraph\": 2, \"claim\": \"The absence of substantial atmosphere and flowing liquid water explains the Moon\u2019s long crater preservation, and prevents rain and river erosion from continually reshaping its landscape as on Earth.\", \"source_url\": \"https://science.nasa.gov/moon/facts/\", \"expected_quote\": \"\", \"category\": \"quote_match\", \"message\": \"Fact checker evidence quote not found\", \"source_passage\": \"Moon Facts - NASA Science Explore Search Search Suggested Searches Artemis ISS Roman Webb Quesst Moon Base View All Topics A-Z Home Missions Humans in Space Earth The Solar System The Universe Science Aeronautics Technology Learning Resources About NASA Espa\u00f1ol News & Events Multimedia NASA+ Highlights 4 min read NASA\u2019s Titan-Bound Dragonfly Rotorcraft Gets Its Eyes article 1 day ago 4 min read NASA Sets Coverage for Northrop Grumman CRS-25 Launch, Prelaunch article 1 week ago 4 min read What\u2019s Up: November 2026 Skywatching Tips from NASA article 3 weeks ago Back Missions Search All NASA Missions A to Z List of Missions Upcoming Launches and Landings Spaceships and Rockets Communicating with Missions Artemis James Webb Space Telescope Hubble Space Telescope International Space Station OSIRIS-REx Humans in Space Why Go to Space Astronauts Commercial Space Destinations Spaceships and Rockets Living in Space Earth Explore Earth Science Climate Change Earth, Our Planet Earth Science in Action Earth Multimedia Earth Data Earth Science Researchers The Solar System The Sun Mercury Venus Earth The Moon Mars Jupiter Saturn Uranus Neptune Pluto & Dwarf Planets Asteroids, Comets & Meteors The\", \"passage_is_diagnostic_only\": true, \"repair\": \"Recheck the unchanged draft and copy a contiguous quote from this source; do not rewrite the article solely for a quote mismatch.\"}",
+        "Paragraph 2 asserts that the lack of substantial atmosphere and flowing liquid water explains the Moon\u2019s long preservation, and that rain and river erosion therefore cannot continually reshape its landscape as on Earth. The supplied NASA source establishes that the Moon has a weak atmosphere and lacks liquid water, and separately says craters have been preserved for billions of years, but it does not make this causal explanation or support the specific comparison about erosion. This is an unsupported inference and blocks passage unless it is supported, qualified, or removed."
+      ]
+    },
+    {
+      "step": 11,
+      "action": "check",
+      "reason": "The quote_match diagnostic calls for a review of the unchanged draft; separately reassess the unsupported erosion explanation. No article revision will be made at this step.",
+      "review_diagnostics": [
+        {
+          "category": "factual_review",
+          "message": "Fact check failed",
+          "passed": false,
+          "issues": [
+            "Paragraph 2 makes an unsupported causal claim: it says the Moon\u2019s thin atmosphere and lack of flowing liquid water explain the long preservation of craters, and that rain and river erosion therefore cannot continually reshape the landscape as on Earth. The supplied NASA source states that the Moon has a weak atmosphere and lacks liquid water, and separately says craters have been preserved for billions of years, but it does not establish this causal explanation or the specific erosion comparison. Qualify or remove that explanation, or support it with an appropriate source."
+          ]
+        }
+      ],
+      "result": "needs-work",
+      "feedback": [
+        "{\"category\": \"factual_review\", \"message\": \"Fact check failed\", \"passed\": false, \"issues\": [\"Paragraph 2 makes an unsupported causal claim: it says the Moon\u2019s thin atmosphere and lack of flowing liquid water explain the long preservation of craters, and that rain and river erosion therefore cannot continually reshape the landscape as on Earth. The supplied NASA source states that the Moon has a weak atmosphere and lacks liquid water, and separately says craters have been preserved for billions of years, but it does not establish this causal explanation or the specific erosion comparison. Qualify or remove that explanation, or support it with an appropriate source.\"]}",
+        "Paragraph 2 makes an unsupported causal claim: it says the Moon\u2019s thin atmosphere and lack of flowing liquid water explain the long preservation of craters, and that rain and river erosion therefore cannot continually reshape the landscape as on Earth. The supplied NASA source states that the Moon has a weak atmosphere and lacks liquid water, and separately says craters have been preserved for billions of years, but it does not establish this causal explanation or the specific erosion comparison. Qualify or remove that explanation, or support it with an appropriate source."
+      ]
+    },
+    {
+      "step": 12,
+      "action": "escalate",
+      "reason": "The latest factual check still flags an unsupported explanation for crater preservation, and no revisions remain. A successful factual check is required before submission.",
+      "result": "completed"
+    }
+  ],
+  "article_proposed": false,
+  "draft_available": true,
+  "factual_review_complete": false,
+  "reviewer_factual_verdict_passed": false,
+  "evidence_validation_passed": false,
+  "stop": null,
+  "next_action": "Resolve the editorial question before a new proposal run. The saved draft is not approved for publication by this run."
+}
