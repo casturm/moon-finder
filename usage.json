@@ -5164,7 +5164,28 @@
       "input_bound": 27479,
       "output_bound": 8000,
       "reserved_usd": "0.007434875",
-      "state": "reserved"
+      "state": "settled",
+      "usage": {
+        "input_tokens": 6273,
+        "input_tokens_details": {
+          "cache_write_tokens": 6270,
+          "cache_write_tokens_details": {
+            "ttl_12h_tokens": 0,
+            "ttl_30m_tokens": 6270
+          },
+          "cached_tokens": 0
+        },
+        "output_tokens": 235,
+        "output_tokens_details": {
+          "reasoning_tokens": 117
+        },
+        "total_tokens": 6508
+      },
+      "cost_usd": "0.00090155",
+      "response_id": "resp_0ff52e75b872d791016b076aee0ecc87d1b1f9ea436349d7f9",
+      "response_model": "gpt-6-luna",
+      "response_status": "completed",
+      "incomplete_details": null
     }
   ]
 }
